@@ -176,7 +176,7 @@ pipeline {
                         ssh -o StrictHostKeyChecking=no -i ${KEY_NAME} ec2-user@${publicIp} << 'EOF'
                             pwd
                             sleep 10
-                            export DB_PASSWORD='${DB_PASSWORD}'
+                            export DB_PASSWORD=${DB_PASSWORD}
                             sleep 30
                             sudo docker-compose up -d --quiet-pull
                         << EOF    
