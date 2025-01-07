@@ -21,7 +21,7 @@ pipeline {
     stages {
         stage('Cleanup') {
             steps {
-                sh """
+                sh '''
                 docker stop docker-gif-app || echo "Container not running"
                 docker rm docker-gif-app || echo "Container already removed"
                 rm -rf ${WORKSPACE}/* || true
@@ -29,7 +29,7 @@ pipeline {
                 pwd
                 docker compose down || true
                 docker rmi $(docker images -q) -f || true
-                """
+                '''
             }
         }
 
