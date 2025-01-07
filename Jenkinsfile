@@ -168,9 +168,9 @@ pipeline {
                     withCredentials([sshUserPrivateKey(credentialsId: 'instance-test', keyFileVariable: 'KEY_NAME', usernameVariable: 'ec2-user')]) {
                         sh """
                         scp -i ${KEY_NAME} -o StrictHostKeyChecking=no \
-                            /var/lib/jenkins/workspace/test1/ariel-devops/Flask/mysql-task/docker-compose.yml \
-                            /var/lib/jenkins/workspace/test1/ariel-devops/Flask/mysql-task/init.sql \
-                            /var/lib/jenkins/workspace/test1/ariel-devops/Flask/mysql-task/.env \
+                            /var/lib/jenkins/workspace/test1/star-image-app/docker-compose.yml \
+                            /var/lib/jenkins/workspace/test1/star-image-app/init.sql \
+                            /var/lib/jenkins/workspace/test1/star-image-app/.env \
                             ec2-user@${publicIp}:/home/ec2-user/
                             sleep 10
                         ssh -o StrictHostKeyChecking=no -i ${KEY_NAME} ec2-user@${publicIp} << 'EOF'
