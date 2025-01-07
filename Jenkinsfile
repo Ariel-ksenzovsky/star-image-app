@@ -24,7 +24,7 @@ pipeline {
                 sh """
                 docker stop docker-gif-app || echo "Container not running"
                 docker rm docker-gif-app || echo "Container already removed"
-                rm -rf ${WORKSPACE} || true
+                rm -rf ${WORKSPACE}/* || true
                 git clone https://github.com/Ariel-ksenzovsky/star-image-app.git
                 pwd
                 docker compose down || true
