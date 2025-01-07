@@ -21,15 +21,15 @@ pipeline {
     stages {
         stage('Cleanup') {
             steps {
-                sh '''
+                sh """
                 docker stop docker-gif-app || echo "Container not running"
                 docker rm docker-gif-app || echo "Container already removed"
-                rm -rf star-image-app || true
+                rm -rf ${WORKSPACE} || true
                 git clone https://github.com/Ariel-ksenzovsky/star-image-app.git
                 pwd
                 docker compose down || true
                 docker rmi $(docker images -q) -f || true
-                '''
+                """
             }
         }
 
