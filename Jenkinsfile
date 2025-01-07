@@ -173,13 +173,17 @@ pipeline {
                                 /var/lib/jenkins/workspace/test1/star-image-app/.env \
                                 ec2-user@${publicIp}:/home/ec2-user/
                             sleep 10
-                            ssh -o StrictHostKeyChecking=no -i ${KEY_NAME} ec2-user@${publicIp} "
-                                export DB_PASSWORD=${DB_PASSWORD} 
+
+                            # Set environment variable on remote host
+                            ssh -o StrictHostKeyChecking=no -i ${KEY_NAME} ec2-user@${publicIp} "export DB_PASSWORD=${DB_PASSWORD}"
+                                
+                            # Run Docker Compose in remote session
+                            ssh -o StrictHostKeyChecking=no -i ${KEY_NAME} ec2-user@${publicIp} << 'EOF'
                                 sleep 5 
                                 pwd 
                                 sleep 30
                                 sudo docker-compose up -d --quiet-pull
-                            "
+                            << EOF
                         """
                     }
                 }
