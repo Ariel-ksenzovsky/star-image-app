@@ -172,14 +172,14 @@ pipeline {
                                 /var/lib/jenkins/workspace/test1/star-image-app/init.sql \
                                 /var/lib/jenkins/workspace/test1/star-image-app/.env \
                                 ec2-user@${publicIp}:/home/ec2-user/
-                                sleep 10
+                            sleep 10
                             ssh -o StrictHostKeyChecking=no -i ${KEY_NAME} ec2-user@${publicIp} "
-                                export DB_PASSWORD=${DB_PASSWORD} \
-                                sleep 5 \
-                                pwd \
-                                sleep 30 \
-                                sudo docker-compose up -d --quiet-pull \
-                            "    
+                                export DB_PASSWORD=${DB_PASSWORD} 
+                                sleep 5 
+                                pwd 
+                                sleep 30
+                                sudo docker-compose up -d --quiet-pull
+                            "
                         """
                     }
                 }
