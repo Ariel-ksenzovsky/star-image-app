@@ -167,19 +167,19 @@ pipeline {
                     // Use SCP to copy multiple files to the EC2 instance
                     withCredentials([sshUserPrivateKey(credentialsId: 'instance-test', keyFileVariable: 'KEY_NAME', usernameVariable: 'ec2-user')]) {
                         sh """
-                        scp -i ${KEY_NAME} -o StrictHostKeyChecking=no \
-                            /var/lib/jenkins/workspace/test1/star-image-app/docker-compose.yml \
-                            /var/lib/jenkins/workspace/test1/star-image-app/init.sql \
-                            /var/lib/jenkins/workspace/test1/star-image-app/.env \
-                            ec2-user@${publicIp}:/home/ec2-user/
-                            sleep 10
-                        ssh -o StrictHostKeyChecking=no -i ${KEY_NAME} ec2-user@${publicIp} << 'EOF'
-                            pwd
-                            sleep 10
-                            export DB_PASSWORD=${DB_PASSWORD}
-                            sleep 30
-                            sudo docker-compose up -d --quiet-pull
-                        << EOF    
+                            scp -i ${KEY_NAME} -o StrictHostKeyChecking=no \
+                                /var/lib/jenkins/workspace/test1/star-image-app/docker-compose.yml \
+                                /var/lib/jenkins/workspace/test1/star-image-app/init.sql \
+                                /var/lib/jenkins/workspace/test1/star-image-app/.env \
+                                ec2-user@${publicIp}:/home/ec2-user/
+                                sleep 10
+                            ssh -o StrictHostKeyChecking=no -i ${KEY_NAME} ec2-user@${publicIp} "
+                                export DB_PASSWORD=${DB_PASSWORD} \
+                                sleep 5 \
+                                pwd \
+                                sleep 30 \
+                                sudo docker-compose up -d --quiet-pull \
+                            "    
                         """
                     }
                 }
