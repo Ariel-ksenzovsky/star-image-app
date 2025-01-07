@@ -176,7 +176,7 @@ pipeline {
 
                             # Set environment variable on remote host
                             ssh -o StrictHostKeyChecking=no -i ${KEY_NAME} ec2-user@${publicIp} "
-                                export DB_PASSWORD="${env.DB_PASSWORD}"
+                                'echo 'DB_PASSWORD=${DB_PASSWORD}' >> /home/ec2-user/.env'
                                 "
                                 
                             # Run Docker Compose in remote session
