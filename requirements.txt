@@ -1,0 +1,4 @@
+Flask
+werkzeug
+mysql-connector-python
+python-dotenv

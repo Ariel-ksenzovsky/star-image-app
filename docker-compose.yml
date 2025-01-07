@@ -1,0 +1,37 @@
+services:
+  app:
+    build: .
+    image: arielk2511/star_meme_sql_compose:2.0
+    container_name: docker-gif-app
+    ports:
+      - "${FLASK_PORT}:${FLASK_PORT}"
+    depends_on:
+      - db
+    environment:
+       DB_HOST: ${DB_HOST}
+       DB_USER: ${DB_USER}
+       DB_PASSWORD: ${DB_PASSWORD}
+       DB_NAME: ${DB_NAME}
+       FLASK_PORT: ${FLASK_PORT}
+    networks:
+      - app_network
+
+  db:
+    image: mysql:8.0
+    container_name: docker-gif-db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - mysql-data:/var/lib/mysql
+    networks:
+      - app_network
+
+networks:
+  app_network:
+
+volumes:
+  mysql-data:
