@@ -24,9 +24,8 @@ pipeline {
                 sh '''
                 docker stop docker-gif-app || echo "Container not running"
                 docker rm docker-gif-app || echo "Container already removed"
-                rm -rf ariel-devops || true
-                git clone https://github.com/Ariel-ksenzovsky/ariel-devops.git
-                cd ariel-devops/Flask/mysql-task
+                rm -rf star-image-app || true
+                git clone https://github.com/Ariel-ksenzovsky/star-image-app.git
                 pwd
                 docker compose down || true
                 docker rmi $(docker images -q) -f || true
@@ -39,9 +38,7 @@ pipeline {
                 sh '''
                 pwd
                 id
-                cd ariel-devops/Flask/mysql-task
-                pwd
-                cp /home/arielk/.env /var/lib/jenkins/workspace/test1/ariel-devops/Flask/mysql-task
+                cp /home/arielk/.env /var/lib/jenkins/workspace/test1/star-image-app
                 '''
             }
         }
@@ -62,7 +59,7 @@ pipeline {
             steps {
                 script {
                     sh '''
-                    cd ariel-devops/Flask/mysql-task
+                    cd star-image-app
                     docker build -t ${DOCKER_IMAGE}:latest .
                     docker build -t ${DOCKER_IMAGE}:2.0.${BUILD_NUM} .
                     docker push ${DOCKER_IMAGE}:latest
@@ -75,7 +72,7 @@ pipeline {
         stage('Prepare SQL File') {
             steps {
                 sh '''
-                cp ariel-devops/Flask/mysql-task/init.sql ${SQL_FILE_PATH}
+                cp star-image-app/init.sql ${SQL_FILE_PATH}
                 '''
             }
         }
@@ -86,7 +83,7 @@ pipeline {
                 docker ps -a
                 id
                 pwd
-                cd ariel-devops/Flask/mysql-task
+                cd star-image-app
                 pwd
                 docker compose up -d
                 docker ps
