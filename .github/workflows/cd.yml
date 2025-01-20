@@ -29,7 +29,7 @@ jobs:
           SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
 
         run: |
-          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no "$SSH_USERNAME@$104.199.106.231" << 'EOF'
+          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no "$SSH_USERNAME@104.199.106.231" << 'EOF'
           cd star-image-app
           pwd
           ls -la
