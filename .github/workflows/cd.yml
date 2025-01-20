@@ -31,6 +31,9 @@ jobs:
         run: |
           sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no "$SSH_USERNAME@104.199.106.231" \
             "cd star-image-app && pwd && ls -la && \
+             kubectl delete all --all && \
+            kubectl delete configmaps flask-config && \
+            kubectl delete secrets flask-secrets && \
             kubectl apply -f configmap.yml && \
             kubectl apply -f secret.yml && \
             kubectl apply -f flask-db.yml && \
