@@ -38,4 +38,5 @@ jobs:
             kubectl apply -f secret.yml && \
             kubectl apply -f flask-db.yml && \
             kubectl apply -f flask-app.yml && \
+            sleep 30 && \
             kubectl delete pods -l app=flask-app"
