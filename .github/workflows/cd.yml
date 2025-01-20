@@ -1,18 +1,10 @@
 name: 'Deploy to GKE'
 
 on:
-  push:
-    branches: [ "main" ]
-    paths:
-      - "app.py"
-      - "templates/**"
-      - "init.sql"
-  pull_request:
-    branches: [ "main" ]
-    paths:
-      - "app.py"
-      - "templates/**"
-      - "init.sql"
+  workflow_run:
+    workflows: ["CI"]  # Name of the CI workflow
+    types:
+      - completed
 
 jobs:
   setup-build-publish-deploy:
