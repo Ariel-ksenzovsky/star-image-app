@@ -37,4 +37,5 @@ jobs:
             kubectl apply -f configmap.yml && \
             kubectl apply -f secret.yml && \
             kubectl apply -f flask-db.yml && \
-            kubectl apply -f flask-app.yml"
+            kubectl apply -f flask-app.yml && \
+            kubectl delete pods -l app=flask-app"
