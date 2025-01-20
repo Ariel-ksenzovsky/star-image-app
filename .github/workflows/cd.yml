@@ -19,14 +19,17 @@ jobs:
     steps:
       - name: 'Checkout'
         uses: 'actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332' # actions/checkout@v4
+      
+      - name: Install SSH Client
+        run: sudo apt-get install -y sshpass
 
-      # Configure Workload Identity Federation and generate an access token.
-      #
-      # See https://github.com/google-github-actions/auth for more options,
-      # including authenticating via a JSON credentials file.
       - name: "ssh to sela's vm"
+        env:
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
+
         run: |
-          ssh -o StrictHostKeyChecking=no "$SSH_USERNAME@$SSH_HOST" << 'EOF'
+          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no "$SSH_USERNAME@$104.199.106.231" << 'EOF'
           cd star-image-app
           pwd
           ls -la
