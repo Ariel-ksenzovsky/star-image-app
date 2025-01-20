@@ -25,8 +25,8 @@ jobs:
 
       - name: "ssh to sela's vm"
         env:
-          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
-          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME_SELA_K8S }}
+          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD_SELA_K8S }}
 
         run: |
           sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no "$SSH_USERNAME@104.199.106.231" \
