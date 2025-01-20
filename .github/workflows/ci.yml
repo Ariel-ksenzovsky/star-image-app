@@ -1,10 +1,17 @@
 name: CI 
 
-on:
-  push:
+push:
     branches: [ "main" ]
+    paths:
+      - "app.py"
+      - "templates/**"
+      - "init.sql"
   pull_request:
     branches: [ "main" ]
+    paths:
+      - "app.py"
+      - "templates/**"
+      - "init.sql"
 
 jobs:
 
@@ -50,6 +57,3 @@ jobs:
             - `${{ env.VERSION }}`
         base: main
         branch: ${{ github.ref_name }}
-      
-    - name: run docker compose
-      run: docker compose up -d
