@@ -22,6 +22,21 @@ jobs:
       
       - name: Install SSH Client
         run: sudo apt-get install -y sshpass
+      
+      - name: scp all yaml files to gke
+        env:
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME_SELA_K8S }}
+          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD_SELA_K8S }}
+        run: |
+          shpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no \
+            configmap.yml \
+            secret.yml \
+            flask-app.yml \
+            flask-db.yml \
+            $SSH_USERNAME@104.199.106.231:/home/sela/ 
+
+
+
 
       - name: "ssh to sela's vm"
         env:
