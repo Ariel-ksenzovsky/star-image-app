@@ -1,0 +1,8 @@
+docker-compose.yml
+congigmap.yml
+secret.yml
+flask-app.yml
+flask-db.yml
+Jenkinsfile
+.github/workflows/
+.gitignore
