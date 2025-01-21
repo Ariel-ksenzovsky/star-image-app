@@ -28,7 +28,7 @@ jobs:
           SSH_USERNAME: ${{ secrets.SSH_USERNAME_SELA_K8S }}
           SSH_PASSWORD: ${{ secrets.SSH_PASSWORD_SELA_K8S }}
         run: |
-          shpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no \
+          sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no \
             configmap.yml \
             secret.yml \
             flask-app.yml \
