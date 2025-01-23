@@ -1,49 +1,92 @@
-# Specify the provider
 provider "aws" {
-  region = "us-east-1" # Specify your AWS region
+  region = "us-east-1"
 }
 
-# Data source to reference the existing security group
-data "aws_security_group" "existing_sg" {
-  filter {
-    name   = "group-name"
-    values = ["launch-wizard-4"] # Replace with your existing security group's name
+# Generate a new SSH key pair
+resource "tls_private_key" "example" {
+  algorithm = "RSA"
+  rsa_bits  = 2048
+}
+
+# Create an AWS key pair using the generated public key
+resource "aws_key_pair" "key_pair" {
+  key_name   = "instance-test-key"
+  public_key = tls_private_key.example.public_key_openssh
+}
+
+# Create the security group with necessary ports
+resource "aws_security_group" "sg" {
+  name_prefix = "terraform-sg-"
+
+  ingress {
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 5000
+    to_port     = 5000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
-# Create the EC2 instance
-resource "aws_instance" "apache_instance" {
-  ami           = "ami-01816d07b1128cd2d" # Replace with your desired AMI ID
-  instance_type = "t2.micro"              # Instance type
-  key_name      = "instance-test"            # Replace with your existing key pair name
+# Reference an existing IAM role
+data "aws_iam_role" "existing_role" {
+  name = "secretsmanagerGetSecretValue"
+}
 
-  # Use the existing security group
-  vpc_security_group_ids = [data.aws_security_group.existing_sg.id]
+# Create the EC2 instance and associate the existing IAM role
+resource "aws_instance" "docker_instance" {
+  ami             = "ami-0df8c184d5f6ae949"  # Replace with your desired AMI ID
+  instance_type   = "t2.micro"
+  key_name        = aws_key_pair.key_pair.key_name
+  security_groups = [aws_security_group.sg.name]
 
-  # User data script to install and start Apache
+  iam_instance_profile = aws_iam_instance_profile.example_instance_profile.name
+
   user_data = <<-EOF
-              #!/bin/bash
-              yum update -y
-              yum install -y httpd
-              systemctl start httpd
-              systemctl enable httpd
-              echo "Apache HTTP Server is running!" > /var/www/html/index.html
-              EOF
+     #!/bin/bash
+      yum update -y
+      amazon-linux-extras enable docker
+      yum install -y docker libxcrypt-compat
+      systemctl start docker
+      systemctl enable docker
+      usermod -a -G docker ec2-user
+      yum install -y jq
 
-  # Add tags to the instance
-  tags = {
-    Name = "Apache-Instance"
-  }
+      yum install -y git
+      git clone https://github.com/Ariel-ksenzovsky/star-image-app.git /home/ec2-user/star-image-app
+      cd /home/ec2-user/star-image-app
+
+      curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+      chmod +x /usr/local/bin/docker-compose
+      EOF
 }
 
-# Output the public IP address of the instance
+# Create an instance profile and associate it with the existing IAM role
+resource "aws_iam_instance_profile" "example_instance_profile" {
+  name = "example_instance_profile"
+  role = data.aws_iam_role.existing_role.name
+}
+
+# Output the public IP of the created EC2 instance
 output "public_ip" {
-  value = aws_instance.apache_instance.public_ip
+  value = aws_instance.docker_instance.public_ip
 }
-
-# Local file to store the public IP address
-resource "local_file" "public_ip_file" {
-  content  = aws_instance.apache_instance.public_ip
-  filename = "public_ip.txt"
-}
-
