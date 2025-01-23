@@ -8,16 +8,19 @@ services:
     depends_on:
       - db
     environment:
-       DB_HOST: ${DB_HOST}
-       DB_USER: ${DB_USER}
-       DB_NAME: ${DB_NAME}
-       FLASK_PORT: ${FLASK_PORT}
-    entrypoint: ["/app/fetch-secrets.sh", "python", "app.py"]
+      DB_HOST: ${DB_HOST}
+      DB_USER: ${DB_USER}
+      DB_NAME: ${DB_NAME}
+      FLASK_PORT: ${FLASK_PORT}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_REGION: us-east-1
+    entrypoint: ["sh", "-c", "/app/fetch-secrets.sh && python app.py"]
     networks:
       - app_network
     volumes:
-      - ./fetch-secrets.sh:/app/fetch-secrets.sh  # Mount the secrets fetching script
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql  # Mount any additional files as needed
+      - ./fetch-secrets.sh:/app/fetch-secrets.sh
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
   db:
     image: mysql:8.0
