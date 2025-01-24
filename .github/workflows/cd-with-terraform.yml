@@ -60,7 +60,7 @@ jobs:
       
       - name: Run Tests
         run: |
-            sleep 3
+            sleep 30
             docker compose logs
             echo "port being tested: ${{ env.FLASK_PORT }}"
             curl -f http://localhost:${{ env.FLASK_PORT }}
