@@ -24,8 +24,6 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}  # Root password
       MYSQL_DATABASE: ${DB_NAME}            # Database to create
-      MYSQL_USER: ${DB_USER}                # User with DB access
-      MYSQL_PASSWORD: ${DB_PASSWORD}        # User password
     ports:
       - "3306:3306"  # External port 3307 to internal MySQL port 3306
     volumes:
