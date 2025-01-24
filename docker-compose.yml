@@ -1,7 +1,9 @@
+version: '3.8'
+
 services:
   app:
     build: .
-    image: arielk2511/star_meme_sql_compose:latest
+    image: arielk2511/star_meme_sql_compose:2.0
     container_name: docker-gif-app
     ports:
       - "${FLASK_PORT}:${FLASK_PORT}"
@@ -10,6 +12,7 @@ services:
     environment:
       DB_HOST: ${DB_HOST}
       DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: ${DB_NAME}
       FLASK_PORT: ${FLASK_PORT}
     networks:
@@ -19,13 +22,15 @@ services:
     image: mysql:8.0
     container_name: docker-gif-db
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}  # Root password
+      MYSQL_DATABASE: ${DB_NAME}            # Database to create
+      MYSQL_USER: ${DB_USER}                # User with DB access
+      MYSQL_PASSWORD: ${DB_PASSWORD}        # User password
     ports:
-      - "3306:3306"
+      - "3306:3306"  # External port 3307 to internal MySQL port 3306
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-      - mysql-data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql  # Initialize the database
+      - mysql-data:/var/lib/mysql  # Persist database data
     networks:
       - app_network
 
