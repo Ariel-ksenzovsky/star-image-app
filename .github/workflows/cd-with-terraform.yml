@@ -60,7 +60,7 @@ jobs:
 
       - name: Run Tests
         run: |
-            docker compose up -d  # Start containers
+            docker compose up --no-build  # Start containers
             echo "Waiting for application to start..."
             until curl --fail --max-time 120 http://localhost:5000; do
               echo "Waiting for application to start..."
