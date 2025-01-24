@@ -50,23 +50,15 @@ jobs:
             docker push ${IMAGE_NAME}:${IMAGE_TAG}
             docker push ${IMAGE_NAME}:latest
 
-      - name: Test - Running Project
-        run: | # running without pulling because it is already built.
-            ls
-            docker images
-            docker compose up -d
-            sleep 1
-            docker compose ps
-      
       - name: Run Tests
         run: |
-            sleep 30
-            docker compose logs
-            echo "port being tested: ${{ env.FLASK_PORT }}"
-            until curl --fail http://localhost:${{ env.FLASK_PORT }}; do
+            docker-compose up -d  # Start containers
+            echo "Waiting for application to start..."
+            until curl --fail --max-time 120 http://localhost:5000; do
               echo "Waiting for application to start..."
               sleep 5
             done
+            echo "Application started successfully!"
 
   deploy: # using terraform to deploy to aws ec2.
     runs-on: ubuntu-latest
