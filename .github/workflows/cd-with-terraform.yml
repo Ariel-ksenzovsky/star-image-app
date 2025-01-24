@@ -78,18 +78,21 @@ jobs:
         uses: hashicorp/setup-terraform@v2
         with: 
           terraform_wrapper: false
-          
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-          
-      - name: Terraform Init
-        run: terraform init -reconfigure
-          
+
+      - name: Set AWS Credentials as Environment Variables
+        run: |
+          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> $GITHUB_ENV
+          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> $GITHUB_ENV
+          echo "AWS_REGION=us-east-1" >> $GITHUB_ENV
+
+      - name: Terraform Init with Debugging
+        run: |
+          export TF_LOG=DEBUG
+          export TF_LOG_PATH=./terraform_debug.log
+          terraform init -reconfigure
+
       - name: Terraform Apply
         env:
           TF_VAR_image_tag: "1.0.${{ github.run_number }}"
         run: terraform apply -auto-approve
+
