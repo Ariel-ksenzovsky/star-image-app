@@ -94,5 +94,7 @@ jobs:
       - name: Terraform Apply
         env:
           TF_VAR_image_tag: "1.0.${{ github.run_number }}"
-        run: terraform apply -auto-approve
+        run: |
+          cd terraform
+          terraform apply -auto-approve
 
