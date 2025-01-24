@@ -64,7 +64,7 @@ jobs:
             docker compose logs
             echo "port being tested: ${{ env.FLASK_PORT }}"
             until curl --fail http://localhost:${{ env.FLASK_PORT }}; do
-              cho "Waiting for application to start..."
+              echo "Waiting for application to start..."
               sleep 5
             done
 
