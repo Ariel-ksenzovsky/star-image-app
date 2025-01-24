@@ -5,6 +5,12 @@ on:
     workflows: ["CI"]  # Name of the CI workflow
     types:
       - completed
+  workflow_dispatch:  # Allow manual triggering
+    inputs:
+      destroy_infrastructure:
+        description: 'Do you want to destroy the infrastructure?'
+        required: true
+        default: 'no'
 
 jobs:
   build-Test:
@@ -108,8 +114,9 @@ jobs:
           cd terraform
           terraform apply -auto-approve
       
-      - name: Terraform destroy
+      - name: Terraform destroy (Conditional)
+        if: ${{ github.event.inputs.destroy_infrastructure == 'yes' }}
         run: |
-          sleep 450
+          sleep 30
           cd terraform
           terraform destroy -auto-approve
