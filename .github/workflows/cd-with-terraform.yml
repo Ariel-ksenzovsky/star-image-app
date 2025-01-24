@@ -39,7 +39,7 @@ jobs:
             pwd
             ls
             docker build -t ${IMAGE_NAME}:latest
-            docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest
+            docker build -t ${IMAGE_NAME}:${IMAGE_TAG}
         env:
             IMAGE_NAME: ${{ env.IMAGE_NAME }}
             IMAGE_TAG: ${{ env.IMAGE_TAG }}
