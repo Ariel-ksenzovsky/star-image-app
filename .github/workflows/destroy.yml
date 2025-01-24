@@ -24,7 +24,7 @@ jobs:
     
       - name: Terraform init
         run: |
-          ld
+          ls
           pwd
           cd terraform
           terraform init
