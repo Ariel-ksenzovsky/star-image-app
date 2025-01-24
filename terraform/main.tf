@@ -13,6 +13,28 @@ provider "aws" {
   region = "us-east-1"
 }
 
+# IAM Policy for S3 bucket access
+resource "aws_iam_policy" "s3_bucket_policy" {
+  name        = "S3BucketAccessPolicy"
+  description = "Policy to allow access to the S3 bucket for Terraform state file"
+  policy      = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = ["s3:GetObject", "s3:PutObject"]
+        Resource = "arn:aws:s3:::your-terraform-state-bucket/terraform.tfstate"  # Replace with your S3 bucket and tfstate file path
+      }
+    ]
+  })
+}
+
+# Attach the IAM policy to the s3Access IAM instance profile
+resource "aws_iam_role_policy_attachment" "attach_s3_bucket_policy" {
+  policy_arn = aws_iam_policy.s3_bucket_policy.arn
+  role       = "s3Access"  # Existing IAM role associated with EC2
+}
+
 # Generate a new SSH key pair
 resource "tls_private_key" "example" {
   algorithm = "RSA"
@@ -65,7 +87,7 @@ resource "aws_instance" "docker_instance" {
   key_name        = aws_key_pair.key_pair.key_name
   security_groups = [aws_security_group.sg.name]
 
- iam_instance_profile = "s3Access" # Reference the existing IAM instance profile directly
+  iam_instance_profile = "s3Access"  # Using the pre-existing IAM instance profile
 
   user_data = <<-EOF
               #!/bin/bash
@@ -84,10 +106,11 @@ resource "aws_instance" "docker_instance" {
               docker-compose up -d
               EOF
 
-tags = {
+  tags = {
     Name = "FlaskAppInstance"
   }
 }
+
 # Output the public IP of the created EC2 instance
 output "public_ip" {
   value = aws_instance.docker_instance.public_ip
