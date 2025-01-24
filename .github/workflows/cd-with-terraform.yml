@@ -5,13 +5,6 @@ on:
     workflows: ["CI"]  # Name of the CI workflow
     types:
       - completed
-  workflow_dispatch:  # Allow manual triggering
-    inputs:
-      destroy_infrastructure:
-        description: 'Do you want to destroy the infrastructure?'
-        required: true
-        default: 'no'
-
 jobs:
   build-Test:
     runs-on: ubuntu-latest
