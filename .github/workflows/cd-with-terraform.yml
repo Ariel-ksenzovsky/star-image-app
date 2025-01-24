@@ -80,7 +80,7 @@ deploy: # using terraform to deploy to aws ec2.
         terraform_wrapper: false
         
     - name: Terraform Init
-      run: terraform init 
+      run: terraform init -reconfigure
         
     - name: Configure AWS Credentials # can be used also without built action, but it is recommended.
       uses: aws-actions/configure-aws-credentials@v2 # with aws configure set commands.
