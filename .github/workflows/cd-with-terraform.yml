@@ -103,20 +103,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-
-      - name: Terraform destroy
-        run: |
-          cd terraform
-          terraform destroy -auto-approve
-
       - name: Terraform Apply
         run: |
           cd terraform
           terraform apply -auto-approve
-      
-      - name: Terraform destroy (Conditional)
-        if: ${{ github.event.inputs.destroy_infrastructure == 'yes' }}
-        run: |
-          sleep 30
-          cd terraform
-          terraform destroy -auto-approve
