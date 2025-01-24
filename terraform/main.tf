@@ -47,11 +47,6 @@ resource "aws_security_group" "sg" {
   }
 }
 
-# Reference an existing IAM role
-data "aws_iam_role" "existing_role" {
-  name = "secretsmanagerGetSecretValue"
-}
-
 # Create the EC2 instance and associate the existing IAM role
 resource "aws_instance" "docker_instance" {
   ami             = "ami-0df8c184d5f6ae949"  # Replace with your desired AMI ID
@@ -59,33 +54,29 @@ resource "aws_instance" "docker_instance" {
   key_name        = aws_key_pair.key_pair.key_name
   security_groups = [aws_security_group.sg.name]
 
-  iam_instance_profile = aws_iam_instance_profile.example_instance_profile.name
+ iam_instance_profile = "s3Access" # Reference the existing IAM instance profile directly
 
   user_data = <<-EOF
-     #!/bin/bash
-      yum update -y
-      amazon-linux-extras enable docker
-      yum install -y docker libxcrypt-compat
-      systemctl start docker
-      systemctl enable docker
-      usermod -a -G docker ec2-user
-      yum install -y jq
+              #!/bin/bash
+              yum update -y
+              yum install -y git docker
+              systemctl start docker
+              systemctl enable docker
+              usermod -aG docker ec2-user
+              newgrp docker
+              yum install -y libxcrypt-compat
+              curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+              chmod +x /usr/local/bin/docker-compose
+              git clone https://github.com/Ariel-ksenzovsky/star-image-app.git /home/ec2-user/star-image-app
+              aws s3 cp s3://my-bucket101110101/.env /home/ec2-user/star-image-app
+              cd /home/ec2-user/star-image-app
+              docker-compose up -d
+              EOF
 
-      yum install -y git
-      git clone https://github.com/Ariel-ksenzovsky/star-image-app.git /home/ec2-user/star-image-app
-      cd /home/ec2-user/star-image-app
-
-      curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-      chmod +x /usr/local/bin/docker-compose
-      EOF
+tags = {
+    Name = "FlaskAppInstance"
+  }
 }
-
-# Create an instance profile and associate it with the existing IAM role
-resource "aws_iam_instance_profile" "example_instance_profile" {
-  name = "example_instance_profile"
-  role = data.aws_iam_role.existing_role.name
-}
-
 # Output the public IP of the created EC2 instance
 output "public_ip" {
   value = aws_instance.docker_instance.public_ip
