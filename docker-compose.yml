@@ -12,14 +12,9 @@ services:
       DB_USER: ${DB_USER}
       DB_NAME: ${DB_NAME}
       FLASK_PORT: ${FLASK_PORT}
-      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
-      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-      AWS_REGION: us-east-1
-    entrypoint: ["sh", "-c", "/app/fetch-secrets.sh && python app.py"]
     networks:
       - app_network
     volumes:
-      - ./fetch-secrets.sh:/app/fetch-secrets.sh
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
   db:
