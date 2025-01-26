@@ -4,10 +4,8 @@ secret.yml
 flask-app.yml
 flask-db.yml
 Jenkinsfile
-.github/workflows/
+.github/
 .gitignore
-terraform/.terraform/
-terraform/.terraform.lock.hcl
-terraform/plan.tfout
-terraform/terraform.tfstate
-terraform/terraform.tfstate.backup
+terraform/
+.env
+ansible-flask-app.yml

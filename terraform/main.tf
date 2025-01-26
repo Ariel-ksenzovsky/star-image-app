@@ -66,21 +66,34 @@ resource "aws_instance" "docker_instance" {
   iam_instance_profile = "s3Access" # Reference the existing IAM instance profile directly
 
   user_data = <<-EOF
+              # #!/bin/bash
+              # yum update -y
+              # yum install -y git docker
+              # systemctl start docker
+              # systemctl enable docker
+              # usermod -aG docker ec2-user
+              # newgrp docker
+              # yum install -y libxcrypt-compat
+              # curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+              # chmod +x /usr/local/bin/docker-compose
+              # git clone https://github.com/Ariel-ksenzovsky/star-image-app.git /home/ec2-user/star-image-app
+              # aws s3 cp s3://my-bucket101110101/configs/.env /home/ec2-user/star-image-app
+              # cd /home/ec2-user/star-image-app
+              # docker-compose up -d
+
               #!/bin/bash
+              # Update the system and install Ansible
               yum update -y
-              yum install -y git docker
-              systemctl start docker
-              systemctl enable docker
-              usermod -aG docker ec2-user
-              newgrp docker
-              yum install -y libxcrypt-compat
-              curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-              chmod +x /usr/local/bin/docker-compose
+              yum install -y git ansible
+
+              # Clone the repository containing the Ansible playbook
               git clone https://github.com/Ariel-ksenzovsky/star-image-app.git /home/ec2-user/star-image-app
-              aws s3 cp s3://my-bucket101110101/configs/.env /home/ec2-user/star-image-app
-              cd /home/ec2-user/star-image-app
-              docker-compose up -d
-              EOF
+
+              # Run the Ansible playbook
+              ansible-playbook /home/ec2-user/star-image-app/flask_app.yml
+
+
+               EOF
 
   tags = {
     Name = "FlaskAppInstance"

@@ -1,0 +1,58 @@
+---
+- name: Configure EC2 instance for Flask app
+  hosts: all
+  become: true
+
+  vars:
+    docker_compose_version: "1.29.2"
+    repo_url: "https://github.com/Ariel-ksenzovsky/star-image-app.git"
+    s3_bucket: "my-bucket101110101"
+    s3_env_path: "configs/.env"
+
+  tasks:
+    - name: Update all packages
+      yum:
+        name: "*"
+        state: latest
+
+    - name: Install required packages
+      yum:
+        name:
+          - git
+          - docker
+          - libxcrypt-compat
+        state: present
+
+    - name: Start and enable Docker service
+      service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Add ec2-user to the docker group
+      user:
+        name: ec2-user
+        groups: docker
+        append: true
+
+    - name: Install Docker Compose
+      get_url:
+        url: "https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-{{ ansible_system | lower }}-{{ ansible_architecture }}"
+        dest: /usr/local/bin/docker-compose
+        mode: '0755'
+
+    - name: Clone the Flask app repository
+      git:
+        repo: "{{ repo_url }}"
+        dest: /home/ec2-user/star-image-app
+        version: HEAD
+
+    - name: Copy the .env file from S3
+      command: aws s3 cp s3://{{ s3_bucket }}/{{ s3_env_path }} /home/ec2-user/star-image-app/.env
+      args:
+        creates: /home/ec2-user/star-image-app/.env
+
+    - name: Run Docker Compose to start the application
+      shell: docker-compose up -d
+      args:
+        chdir: /home/ec2-user/star-image-app
