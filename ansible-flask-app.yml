@@ -1,6 +1,6 @@
 ---
 - name: Configure EC2 instance for Flask app
-  hosts: all
+  hosts: localhost
   become: true
 
   vars:
