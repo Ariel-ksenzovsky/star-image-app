@@ -1,6 +1,6 @@
 .env
-terraform/.terraform/
-terraform/.terraform.lock.hcl
-terraform/plan.tfout
-terraform/terraform.tfstate
-terraform/terraform.tfstate.backup
+terraform-aws/.terraform/
+terraform-aws/.terraform.lock.hcl
+terraform-aws/plan.tfout
+terraform-aws/terraform.tfstate
+terraform-aws/terraform.tfstate.backup

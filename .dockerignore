@@ -6,6 +6,6 @@ flask-db.yml
 Jenkinsfile
 .github/
 .gitignore
-terraform/
+terraform-aws/
 .env
 ansible-flask-app.yml
