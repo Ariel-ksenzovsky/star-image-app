@@ -146,10 +146,14 @@ jobs:
         run: |
           # Ensure the path is correctly specified
           git fetch --all
-          git diff --quiet HEAD -- ./k8s-config/flask-app.yaml || echo "flask-app.yaml has changed" > result.txt
+          if git diff --quiet HEAD origin/main -- ./k8s-config/flask-app.yaml; then
+            echo "changed=false" >> $GITHUB_ENV
+          else
+            echo "changed=true" >> $GITHUB_ENV
+          fi
         
       - name: Apply changes to flask-app if it has changed
-        if: steps.check-flask-deployment.outputs.result == 'flask-app.yaml has changed'
+        if: env.changed == 'true'
         run: |
           set -ex
           # Update the image in flask-app.yaml using sed
