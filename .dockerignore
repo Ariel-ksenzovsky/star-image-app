@@ -8,4 +8,5 @@ Jenkinsfile
 .gitignore
 terraform-aws/
 .env
-ansible-flask-app.yml
+ansible-flask-app-ec2.yml
+terraform-azure/
