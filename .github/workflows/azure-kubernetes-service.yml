@@ -131,8 +131,8 @@ jobs:
       - name: Set AKS Context # uses az aks get-credentials internally.
         uses: azure/aks-set-context@v3
         with:
-          resource-group: ${{ var.CLUSTER_NAME }}
-          cluster-name: ${{ var.RESOURCE_GROUP }}
+          resource-group: ${{ vars.CLUSTER_NAME }}
+          cluster-name: ${{ vars.RESOURCE_GROUP }}
 
       - name: deploy flask-app to k8s
         run: |
