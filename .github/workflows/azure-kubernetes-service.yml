@@ -143,10 +143,11 @@ jobs:
       - name: Check if flask-app.yaml has changed
         id: check-flask-deployment
         run: |
-          # Check if flask-app.yaml is modified
-          git diff --quiet ./k8s-config/flask-app.yaml || echo "flask-app.yaml has changed" > result.txt
+          # Ensure the path is correctly specified
+          git fetch --all
+          git diff --quiet HEAD -- ./k8s-config/flask-app.yaml || echo "flask-app.yaml has changed" > result.txt
         
-      - name: Apply changes to flask-app.yaml if it has changed
+      - name: Apply changes to flask-app if it has changed
         if: steps.check-flask-deployment.outputs.result == 'flask-app.yaml has changed'
         run: |
           set -ex
@@ -155,4 +156,5 @@ jobs:
             
           # Apply the updated flask-app.yaml
           kubectl apply -f ./k8s-config/flask-app.yaml
+        
         
