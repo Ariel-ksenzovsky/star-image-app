@@ -26,10 +26,10 @@ jobs:
         run: |
           ls
           pwd
-          cd terraform
+          cd terraform-aws
           terraform init
     
       - name: Terraform Destroy
         run: |
-          cd terraform
+          cd terraform-aws
           terraform destroy -auto-approve
