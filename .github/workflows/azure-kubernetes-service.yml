@@ -138,6 +138,7 @@ jobs:
         run: |
           set -ex
           # Apply all YAML files in the k8s-config directory
+          kubectl delete pod -l app=flask-app
           kubectl apply -f ./k8s-config
       
       - name: Check if flask-app.yaml has changed
