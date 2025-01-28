@@ -113,14 +113,14 @@ jobs:
         env:
           ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         run: |
-          cd star-image-app/terraform-azure
+          cd terraform-azure
           terraform init
 
       - name: Terraform Apply # update cluster infrastructure.
         env:
           ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         run: |
-          cd star-image-app/terraform-azure
+          cd terraform-azure
           terraform apply -auto-approve
 
       - name: setup kubectl
