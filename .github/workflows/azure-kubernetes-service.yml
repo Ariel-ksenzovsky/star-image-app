@@ -140,6 +140,6 @@ jobs:
           # Apply all YAML files in the k8s-config directory
           kubectl apply -f ./k8s-config
           # Update the flask-app-deployment.yaml image using sed
-          sed -i "s|crazyguy888/catexer-actions:0.0.0|crazyguy888/catexer-actions:0.0.${{ github.run_number }}|g" flask-app-deployment.yaml
+          sed -i "s|arielk2511/star_meme_sql_compose:latest|arielk2511/star_meme_sql_compose:1.0.${{ github.run_number }}|g" flask-app-deployment.yaml
           # Apply the updated flask-app-deployment.yaml
           kubectl apply -f flask-app-deployment.yaml
