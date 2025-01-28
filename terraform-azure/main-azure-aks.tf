@@ -5,7 +5,7 @@ provider "azurerm" {
 
 terraform {
   backend "s3" {
-    bucket         = "docker-gifs-project"
+    bucket         = "my-bucket101110101"
     key            = "azure-aks-terraform/terraform.tfstate"
     region         = "us-east-1"
     encrypt        = true
