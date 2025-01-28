@@ -152,7 +152,7 @@ jobs:
         id: check-flask-deployment
         run: |
           # Check if the specific file has changes compared to the last commit
-          if git diff --quiet HEAD^ HEAD -- ./k8s-config/flask-app.yaml; then
+          if git diff --quiet HEAD^ HEAD -- ./k8s-config/flask-app.yml; then
             echo "changed=false" >> $GITHUB_ENV
           else
             echo "changed=true" >> $GITHUB_ENV
@@ -164,10 +164,10 @@ jobs:
         run: |
           set -ex
           # Update the image in flask-app.yaml
-          sed -i "s|arielk2511/star_meme_sql_compose:latest|arielk2511/star_meme_sql_compose:1.0.${{ github.run_number }}|g" ./k8s-config/flask-app.yaml
+          sed -i "s|arielk2511/star_meme_sql_compose:latest|arielk2511/star_meme_sql_compose:1.0.${{ github.run_number }}|g" ./k8s-config/flask-app.yml
 
           # Apply the updated flask-app.yaml
-          kubectl apply -f ./k8s-config/flask-app.yaml
+          kubectl apply -f ./k8s-config/flask-app.yml
 
         
         
