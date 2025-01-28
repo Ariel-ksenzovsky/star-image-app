@@ -139,7 +139,20 @@ jobs:
           set -ex
           # Apply all YAML files in the k8s-config directory
           kubectl apply -f ./k8s-config
-          # Update the flask-app-deployment.yaml image using sed
-          sed -i "s|arielk2511/star_meme_sql_compose:latest|arielk2511/star_meme_sql_compose:1.0.${{ github.run_number }}|g" flask-app-deployment.yaml
+      
+      - name: Check if flask-app-deployment.yaml has changed
+        id: check-flask-deployment
+        run: |
+          # Check if flask-app-deployment.yaml is modified
+          git diff --quiet ./k8s-config/flask-app-deployment.yaml || echo "flask-app-deployment.yaml has changed" > result.txt
+        
+      - name: Apply changes to flask-app-deployment if it has changed
+        if: steps.check-flask-deployment.outputs.result == 'flask-app-deployment.yaml has changed'
+        run: |
+          set -ex
+          # Update the image in flask-app-deployment.yaml using sed
+          sed -i "s|arielk2511/star_meme_sql_compose:latest|arielk2511/star_meme_sql_compose:1.0.${{ github.run_number }}|g" ./k8s-config/flask-app-deployment.yaml
+            
           # Apply the updated flask-app-deployment.yaml
           kubectl apply -f ./k8s-config/flask-app-deployment.yaml
+        
