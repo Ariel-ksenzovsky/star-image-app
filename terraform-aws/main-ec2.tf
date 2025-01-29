@@ -76,7 +76,7 @@ resource "aws_instance" "docker_instance" {
               git clone https://github.com/Ariel-ksenzovsky/star-image-app.git /home/ec2-user/star-image-app
 
               # Run the Ansible playbook
-              ansible-playbook /home/ec2-user/star-image-app/ansible-flask-app.yml
+              ansible-playbook /home/ec2-user/star-image-app/ansible-flask-app-ec2.yml
               EOF
 
   tags = {
