@@ -3,6 +3,7 @@ terraform {
     bucket = "my-bucket101110101"  # Your existing S3 bucket for state and .env
     key    = "terraform/terraform.tfstate"  # Path for the Terraform state file
     region = "us-east-1"  # Your AWS region
+    dynamodb_table = "terraform-ec2"
     encrypt = true  # Enable encryption for the state file
   }
 }

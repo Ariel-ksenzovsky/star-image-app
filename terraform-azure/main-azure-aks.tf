@@ -7,6 +7,7 @@ terraform {
     bucket         = "my-bucket101110101"
     key            = "azure-aks-terraform/terraform.tfstate"
     region         = "us-east-1"
+    dynamodb_table = "terraform-aks"
     encrypt        = true
   }
 }
