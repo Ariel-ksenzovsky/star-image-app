@@ -138,25 +138,26 @@ jobs:
         run: |
           set -ex
           # Apply all YAML files in the k8s-config directory
-          kubectl delete pod -l app=flask-app
-          kubectl apply -f ./k8s-config
+          # kubectl delete pod -l app=flask-app
+          # kubectl apply -f ./k8s-config
+          helm upgrade --install flask-app flask-app
       
-      # Step 1: Set up the Git repository with full branch history
-      - name: Set up Git repository
-        run: |
-          git fetch --all
-          git checkout ${{ github.event.pull_request.base.ref || 'main' }}
+      # # Step 1: Set up the Git repository with full branch history
+      # - name: Set up Git repository
+      #   run: |
+      #     git fetch --all
+      #     git checkout ${{ github.event.pull_request.base.ref || 'main' }}
 
-      # Step 2: Check if flask-app.yaml has changed
-      - name: Check if flask-app.yaml has changed
-        id: check-flask-deployment
-        run: |
-          # Check if the specific file has changes compared to the last commit
-          if git diff --quiet HEAD^ HEAD -- ./k8s-config/flask-app.yml; then
-            echo "changed=false" >> $GITHUB_ENV
-          else
-            echo "changed=true" >> $GITHUB_ENV
-          fi
+      # # Step 2: Check if flask-app.yaml has changed
+      # - name: Check if flask-app.yaml has changed
+      #   id: check-flask-deployment
+      #   run: |
+      #     # Check if the specific file has changes compared to the last commit
+      #     if git diff --quiet HEAD^ HEAD -- ./k8s-config/flask-app.yml; then
+      #       echo "changed=false" >> $GITHUB_ENV
+      #     else
+      #       echo "changed=true" >> $GITHUB_ENV
+      #     fi
 
       # Step 3: Deploy changes to flask-app only if the file has changed
       - name: Apply changes to flask-app if it has changed
