@@ -134,15 +134,18 @@ jobs:
           resource-group: ${{ vars.AZURE_CLUSTER_RESOURCE_GROUP }}
           cluster-name: ${{ vars.AZURE_CLUSTER_NAME }}
 
+
+      - name: deploy flask-app to k8s
+        run: |
+          set -ex
+          kubectl delete all --all
+
+
       - name: deploy flask-app to k8s
         run: |
           set -ex
           cd charts
-          # Apply all YAML files in the k8s-config directory
-          # kubectl delete pod -l app=flask-app
-          # kubectl apply -f ./k8s-config
           helm upgrade --install flask-app flask-app
-          kubectl delete pod -l app=flask-app
       
       # # Step 1: Set up the Git repository with full branch history
       # - name: Set up Git repository
