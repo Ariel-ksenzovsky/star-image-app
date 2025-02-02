@@ -136,17 +136,17 @@ jobs:
   
       - name: Upload Helm Chart to S3
         run: |
-          aws s3 cp charts/flask-app-*.tgz s3://helm-flask-star-image/charts/
+          aws s3 cp charts/flask-app-*.tgz s3://helm-flask-star-images/charts/
   
       - name: Generate and Upload index.yaml
         run: |
-          aws s3 cp s3://helm-flask-star-image/charts/index.yaml index.yaml || touch index.yaml
-          helm repo index charts/ --url https://helm-flask-star-image.s3.amazonaws.com/charts --merge index.yaml
-          aws s3 cp charts/index.yaml s3://helm-flask-star-image/charts/index.yaml
+          aws s3 cp s3://helm-flask-star-images/charts/index.yaml index.yaml || touch index.yaml
+          helm repo index charts/ --url https://helm-flask-star-images.s3.amazonaws.com/charts --merge index.yaml
+          aws s3 cp charts/index.yaml s3://helm-flask-star-images/charts/index.yaml
   
       - name: Verify Helm Repo
         run: |
-          helm repo add flask-repo https://helm-flask-star-image.s3.amazonaws.com/charts
+          helm repo add flask-repo https://helm-flask-star-images.s3.amazonaws.com/charts
           helm repo update
 
       - name: Set AKS Context # uses az aks get-credentials internally.
