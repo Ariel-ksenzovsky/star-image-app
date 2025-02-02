@@ -142,6 +142,7 @@ jobs:
           # kubectl delete pod -l app=flask-app
           # kubectl apply -f ./k8s-config
           helm upgrade --install flask-app flask-app
+          kubectl delete pod -l app=flask-app
       
       # # Step 1: Set up the Git repository with full branch history
       # - name: Set up Git repository
