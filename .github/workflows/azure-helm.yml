@@ -140,8 +140,7 @@ jobs:
   
       - name: Generate and Upload index.yaml
         run: |
-          aws s3 cp s3://helm-flask-star-images/charts/index.yaml index.yaml || touch index.yaml
-          helm repo index charts/ --url https://helm-flask-star-images.s3.amazonaws.com/charts --merge index.yaml
+          helm repo index charts/ --url https://helm-flask-star-images.s3.amazonaws.com/charts 
           aws s3 cp charts/index.yaml s3://helm-flask-star-images/charts/index.yaml
   
       - name: Verify Helm Repo
