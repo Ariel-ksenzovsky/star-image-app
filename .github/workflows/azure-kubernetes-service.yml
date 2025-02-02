@@ -137,6 +137,7 @@ jobs:
       - name: deploy flask-app to k8s
         run: |
           set -ex
+          cd charts
           # Apply all YAML files in the k8s-config directory
           # kubectl delete pod -l app=flask-app
           # kubectl apply -f ./k8s-config
