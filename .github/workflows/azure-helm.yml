@@ -136,7 +136,7 @@ jobs:
   
       - name: Upload Helm Chart to S3
         run: |
-          aws s3 cp helm/flask-app-*.tgz s3://helm-flask-star-image/charts/
+          aws s3 cp charts/flask-app-*.tgz s3://helm-flask-star-image/charts/
   
       - name: Generate and Upload index.yaml
         run: |
