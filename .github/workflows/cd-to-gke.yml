@@ -58,7 +58,12 @@ jobs:
 
       - name: Install gke-gcloud-auth-plugin
         run: |
-          gcloud components install google-cloud-cli-gke-gcloud-auth-plugin
+          # Install the Google Cloud SDK if it's not already installed
+          curl https://sdk.cloud.google.com | bash
+          source $HOME/google-cloud-sdk/path.bash.inc
+          # Install the plugin using the appropriate command
+          gcloud components update
+          gcloud components install gke-gcloud-auth-pluginn
 
       - name: Initialize Terraform
         run: |
