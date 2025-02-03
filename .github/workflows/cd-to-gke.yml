@@ -54,13 +54,12 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
 
-      - name: Install Google Cloud SDK and the required components
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y curl
-          curl https://sdk.cloud.google.com | bash
-          source $HOME/google-cloud-sdk/path.bash.inc
-          gcloud components install gke-gcloud-auth-plugin
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ secrets.GCP_PROJECT }}
+          service_account_key_file: ${{ secrets.GCP_CREDENTIALS }}
+          export_default_credentials: true
 
       - name: Initialize Terraform
         run: |
