@@ -1,3 +1,14 @@
+terraform {
+  backend "s3" {
+    bucket = "my-bucket101110101"  # Your existing S3 bucket for state and .env
+    key    = "gcloud-terraform.tfstate/terraform.tfstate"  # Path for the Terraform state file
+    region = "us-east-1"  # Your AWS region
+    dynamodb_table = "terraform-gke"
+    encrypt = true  # Enable encryption for the state file
+  }
+}
+
+
 variable "GCP_PROJECT_ID" {
   default = "jovial-parsec-449808-s1"
 }
