@@ -85,10 +85,12 @@ jobs:
           cd terraform-gcp
           terraform apply -auto-approve
 
-      - name: Configure gcloud CLI
-        run: |
-          gcloud config set project jovial-parsec-449808-s1
-          gcloud container clusters get-credentials ariel-flask-cluster --zone us-central1-a
+      - name: Get GKE Credentials
+        uses: google-github-actions/get-gke-credentials@v1
+        with:
+          cluster_name: ariel-flask-cluster
+          location: us-central1-a
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
 
 
       - name: delete flask-app from k8s
