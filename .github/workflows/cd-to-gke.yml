@@ -53,7 +53,7 @@ jobs:
         uses: google-github-actions/setup-gcloud@v0.6.0
         with:
           version: 'latest'
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          project_id: ${{ secrets.GCP_PROJECT }}
           credentials: ${{ secrets.GCP_SA_KEY }}
 
       - name: Install gke-gcloud-auth-plugin
@@ -90,7 +90,7 @@ jobs:
         with:
           cluster_name: ariel-flask-cluster
           location: us-central1-a
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          project_id: ${{ secrets.GCP_PROJECT }}
 
 
       - name: delete flask-app from k8s
