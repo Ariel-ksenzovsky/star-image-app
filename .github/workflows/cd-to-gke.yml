@@ -75,6 +75,7 @@ jobs:
         env:
           credentials: ${HOME}/gcp-key.json
         run: |
+          echo "${{ secrets.GCP_SA_KEY }}" > $HOME/gcp-key.json
           cd terraform-gcp
           terraform init
 
