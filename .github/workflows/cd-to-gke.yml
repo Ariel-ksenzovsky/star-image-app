@@ -1,10 +1,15 @@
 name: 'Deploy to GKE'
 
 on:
-  workflow_run:
-    workflows: ["CI"]  # Name of the CI workflow
-    types:
-      - completed
+  push:
+    branches: [ "main" ]
+    paths:
+      - "charts/**"
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - "charts/**"
+
 
 jobs:
   setup-build-publish-deploy:
@@ -17,41 +22,65 @@ jobs:
       id-token: 'write'
 
     steps:
-      - name: 'Checkout'
-        uses: 'actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332' # actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.0
       
-      - name: Install SSH Client
-        run: sudo apt-get install -y sshpass
+
+      - name: Install kubectl
+        run: |
+          curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/
+          kubectl version --client
+  
+      - name: Install Helm
+        run: |
+          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+          helm version
+
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+      - name: Initialize Terraform
+        run: |
+          cd terraform-gcp
+          terraform init
+
+      - name: Apply Terraform
+        run: |
+          cd terraform-gcp
+          terraform apply -auto-approve
+
+      - name: Configure gcloud CLI
+        run: |
+          gcloud config set project jovial-parsec-449808-s1
+          gcloud container clusters get-credentials ariel-flask-cluster --zone us-central1-a
+
+
+      - name: delete flask-app from k8s
+        run: |
+          set -ex
+          kubectl delete all --all
+
+      - name: Add Helm Repo
+        run: |
+          helm repo add flask-repo https://helm-flask-star-images.s3.us-east-1.amazonaws.com/charts
+          helm repo update
+
+
+      - name: deploy flask-app to k8s
+        run: |
+          set -ex
+          cd charts
+          helm upgrade --install ariel-flask-app flask-repo/flask-app
+
       
-      - name: scp all yaml files to gke
-        env:
-          SSH_USERNAME: ${{ secrets.SSH_USERNAME_SELA_K8S }}
-          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD_SELA_K8S }}
-        run: |
-          sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no \
-            configmap.yml \
-            secret.yml \
-            flask-app.yml \
-            flask-db.yml \
-            $SSH_USERNAME@104.199.106.231:/home/sela/ 
 
-
-
-
-      - name: "ssh to sela's vm"
-        env:
-          SSH_USERNAME: ${{ secrets.SSH_USERNAME_SELA_K8S }}
-          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD_SELA_K8S }}
-
-        run: |
-          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no "$SSH_USERNAME@104.199.106.231" \
-            "cd /home/sela && pwd && ls -la && \
-            kubectl delete all --all || true && \
-            kubectl delete configmaps flask-config || true && \
-            kubectl delete secrets flask-secrets || true && \
-            kubectl apply -f configmap.yml && \
-            kubectl apply -f secret.yml && \
-            kubectl apply -f flask-db.yml && \
-            kubectl apply -f flask-app.yml && \
-            sleep 60 && \
-            kubectl delete pods -l app=flask-app"
