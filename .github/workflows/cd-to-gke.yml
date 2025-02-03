@@ -86,6 +86,8 @@ jobs:
           terraform apply -auto-approve
 
       - name: Get GKE Credentials
+        env:
+          GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
         uses: google-github-actions/get-gke-credentials@v1
         with:
           cluster_name: ariel-flask-cluster
