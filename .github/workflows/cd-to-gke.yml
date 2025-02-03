@@ -63,7 +63,7 @@ jobs:
           source $HOME/google-cloud-sdk/path.bash.inc
           # Install the plugin using the appropriate command
           gcloud components update
-          gcloud components install gke-gcloud-auth-pluginn
+          gcloud components install gke-gcloud-auth-plugin
 
       - name: Initialize Terraform
         run: |
