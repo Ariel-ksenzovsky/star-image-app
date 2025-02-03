@@ -8,3 +8,7 @@ terraform-azure/.terraform
 terraform-azure/.terraform.lock.hcl
 terraform-azure/terraform.tfstate
 terraform-azure/terraform.tfstate.backup
+terraform-gcp/.terraform
+terraform-gcp/.terraform.lock.hcl
+terraform-gcp/terraform.tfstate
+terraform-gcp/terraform.tfstate.backup

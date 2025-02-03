@@ -4,7 +4,7 @@ metadata:
   name: flask-app
 spec:
   replicas: 4
-  selector:
+  selector:לש
     matchLabels:
       app: flask-app
   template:
