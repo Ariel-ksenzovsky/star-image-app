@@ -73,17 +73,15 @@ jobs:
 
       - name: Initialize Terraform
         env:
-          credentials: ${HOME}/gcp-key.json
+          GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
         run: |
-          echo "${{ secrets.GCP_SA_KEY }}" > $HOME/gcp-key.json
           cd terraform-gcp
           terraform init
 
       - name: Apply Terraform
         env:
-          credentials: ${HOME}/gcp-key.json
+          GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
         run: |
-          echo "${{ secrets.GCP_SA_KEY }}" > $HOME/gcp-key.json
           cd terraform-gcp
           terraform apply -auto-approve
 
