@@ -49,10 +49,12 @@ jobs:
           curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
           helm version
 
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0.6.0
         with:
-          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+          version: 'latest'
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          credentials: ${{ secrets.GCP_CREDENTIALS }}
 
       - name: Install gke-gcloud-auth-plugin
         run: |
