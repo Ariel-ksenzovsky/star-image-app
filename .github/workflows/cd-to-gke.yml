@@ -73,14 +73,14 @@ jobs:
 
       - name: Initialize Terraform
         env:
-          credentials: ${{ secrets.GCP_SA_KEY }}
+          credentials: ${HOME}/gcp-key.json
         run: |
           cd terraform-gcp
           terraform init
 
       - name: Apply Terraform
         env:
-          credentials: ${{ secrets.GCP_SA_KEY }}
+          credentials: ${HOME}/gcp-key.json
         run: |
           cd terraform-gcp
           terraform apply -auto-approve
