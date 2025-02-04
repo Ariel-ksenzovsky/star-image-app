@@ -87,7 +87,7 @@ jobs:
 
       - name: Authenticate with Google Cloud
         run: |
-          echo "$GCP_SA_KEY" | base64 --decode > ${HOME}/gcp-key.json
+          echo "$GCP_SA_KEY" > ${HOME}/gcp-key.json
           gcloud auth activate-service-account --key-file=${HOME}/gcp-key.json
           gcloud config set project $GCP_PROJECT
         env:
