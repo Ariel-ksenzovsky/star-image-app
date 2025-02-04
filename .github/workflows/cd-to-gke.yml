@@ -65,12 +65,6 @@ jobs:
           gcloud components update
           gcloud components install gke-gcloud-auth-plugin
 
-
-      - name: Set up Google Cloud credentials for Terraform
-        run: |
-          ECHO '${{ secrets.GCP_SA_KEY }}' | base64 --decode > /tmp/key.json
-          echo "GOOGLE_CREDENTIALS=/tmp/key.json" >> $GITHUB_ENV
-
       - name: Initialize Terraform
         env:
           GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
