@@ -116,7 +116,6 @@ jobs:
       - name: deploy flask-app to k8s
         run: |
           set -ex
-          cd charts
           helm upgrade --install ariel-flask-app flask-repo/flask-app
 
       
