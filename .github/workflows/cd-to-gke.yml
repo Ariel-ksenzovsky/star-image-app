@@ -116,6 +116,8 @@ jobs:
       - name: deploy flask-app to k8s
         run: |
           set -ex
+          gcloud components update
+          gcloud components install gke-gcloud-auth-plugin
           helm upgrade --install ariel-flask-app flask-repo/flask-app
 
       
