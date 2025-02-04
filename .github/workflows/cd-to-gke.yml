@@ -85,12 +85,16 @@ jobs:
           cd terraform-gcp
           terraform apply -auto-approve
 
-      - name: Get GKE Credentials
-        uses: google-github-actions/get-gke-credentials@v1
-        with:
-          cluster_name: ariel-flask-cluster
-          location: us-central1-a
-          project_id: ${{ secrets.GCP_PROJECT }}
+      - name: Authenticate with Google Cloud
+        run: |
+          echo "${{ secrets.GCP_SA_KEY }}" > ${HOME}/gcp-key.json
+          gcloud auth activate-service-account --key-file=${HOME}/gcp-key.json
+          gcloud config set project ${{ secrets.GCP_PROJECT }}
+        
+      - name: Fetch GKE Credentials
+        run: |
+          gcloud container clusters get-credentials ariel-flask-cluster --zone us-central1-a --project ${{ secrets.GCP_PROJECT }}
+        
 
 
       - name: delete flask-app from k8s
