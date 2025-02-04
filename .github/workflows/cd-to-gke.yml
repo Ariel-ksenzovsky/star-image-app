@@ -97,7 +97,8 @@ jobs:
       - name: Fetch GKE Credentials
         run: |
           gcloud container clusters get-credentials ariel-flask-cluster --zone us-central1-a --project $GCP_PROJECT
-        
+        env:
+          GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
         
 
 
