@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: mysql
 spec:
-  replicas: 1
+  replicas: {{ .Values.database.replicaCount }}
   selector:
     matchLabels:
       app: mysql
@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: mysql
-        image: mysql:5.7
+        image: {{ .Values.database.image }}
         env:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
@@ -22,24 +22,16 @@ spec:
               name: flask-secrets
               key: DB_PASSWORD
         - name: MYSQL_DATABASE
-          valueFrom:
-            configMapKeyRef:
-              name: flask-config
-              key: DB_NAME
-        - name: DB_HOST
-          valueFrom:
-            configMapKeyRef:
-              name: flask-config
-              key: DB_HOST
+          value: "{{ .Values.database.auth.database }}"
         ports:
-        - containerPort: 3306
+        - containerPort: {{ .Values.database.service.port }}
         volumeMounts:
         - name: mysql-init
-          mountPath: /docker-entrypoint-initdb.d/  # No subPath, mount the whole directory
+          mountPath: /docker-entrypoint-initdb.d/
       volumes:
       - name: mysql-init
         configMap:
           name: flask-config
           items:
           - key: init.sql
-            path: init.sql  # Ensure it is mounted as 'init.sql'
+            path: init.sql

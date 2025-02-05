@@ -100,7 +100,27 @@ jobs:
         env:
           GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
         
-
+      - name: Update Helm Chart Version
+        run: |
+          CHART_VERSION="1.0.${{ github.run_number }}"
+          echo "Updating Chart version to $CHART_VERSION"
+          sed -i "s/^version:.*/version: $CHART_VERSION/" charts/flask-app/Chart.yaml
+          sed -i "s/^appVersion:.*/appVersion: $CHART_VERSION/" charts/flask-app/Chart.yaml
+          cat charts/flask-app/Chart.yaml  # Debugging to verify update
+              
+      - name: Package Helm Chart
+        run: |
+          helm package charts/flask-app
+          mv flask-app-*.tgz charts/
+    
+      - name: Upload Helm Chart to S3
+        run: |
+          aws s3 cp charts/flask-app-*.tgz s3://helm-flask-star-images/charts/
+    
+      - name: Generate and Upload index.yaml
+        run: |
+          helm repo index charts/ --url https://helm-flask-star-images.s3.amazonaws.com/charts 
+          aws s3 cp charts/index.yaml s3://helm-flask-star-images/charts/index.yaml
 
       - name: delete flask-app from k8s
         run: |

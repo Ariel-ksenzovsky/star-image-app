@@ -1,123 +1,61 @@
-# Default values for flask-app.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+# values.yaml
 
-# This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
-replicaCount: 1
+replicaCount: 2
 
-# This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
 image:
-  repository: arielk2511/weather-app:0.0.15
-  # This sets the pull policy for images.
-  pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  repository: arielk2511/star_meme_sql_compose
+  tag: latest
+  pullPolicy: Always
 
-# This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
-imagePullSecrets: []
-# This is to override the chart name.
-nameOverride: ""
-fullnameOverride: ""
-
-# This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
-serviceAccount:
-  # Specifies whether a service account should be created
-  create: true
-  # Automatically mount a ServiceAccount's API credentials?
-  automount: true
-  # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: ""
-
-# This is for setting Kubernetes Annotations to a Pod.
-# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
-podAnnotations: {}
-# This is for setting Kubernetes Labels to a Pod.
-# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
-podLabels: {}
-
-podSecurityContext: {}
-  # fsGroup: 2000
-
-securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
-
-# This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
 service:
-  # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
   type: LoadBalancer
-  # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
-  port: 5000
+  port: 80
+  targetPort: 5000
 
-# This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
-ingress:
-  enabled: false
-  className: ""
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  hosts:
-    - host: chart-example.local
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
+database:
+  image: mysql:5.7
+  replicaCount: 1
+  service:
+    name: mysql
+    port: 3306
+  auth:
+    rootPassword: "rootpassword"  # Override using secrets
+    database: stargifs
 
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
+config:
+  DB_HOST: "mysql"
+  DB_USER: "root"
+  DB_NAME: "stargifs"
+  FLASK_PORT: "5000"
 
-# This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
-livenessProbe:
-  httpGet:
-    path: /
-    port: http
-readinessProbe:
-  httpGet:
-    path: /
-    port: http
+secrets:
+  DB_PASSWORD: "cm9vdF9wYXNzd29yZA=="  # base64 encoded "rootpassword"
 
-# This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
+initSQL: |
+  -- Create the database if it doesn't exist
+  CREATE DATABASE IF NOT EXISTS stargifs;
 
-# Additional volumes on the output Deployment definition.
-volumes: []
-# - name: foo
-#   secret:
-#     secretName: mysecret
-#     optional: false
+  -- Use the created database
+  USE stargifs;
 
-# Additional volumeMounts on the output Deployment definition.
-volumeMounts: []
-# - name: foo
-#   mountPath: "/etc/foo"
-#   readOnly: true
+  CREATE TABLE IF NOT EXISTS visitor_counter (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      count INT NOT NULL DEFAULT 0
+  );
 
-nodeSelector: {}
+  -- Initialize the counter with a value
+  INSERT INTO visitor_counter (count) VALUES (0);
 
-tolerations: []
+  -- Create the 'images' table if it doesn't exist
+  CREATE TABLE IF NOT EXISTS images (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      url VARCHAR(2000) NOT NULL
+  );
 
-affinity: {}
+  -- Insert some sample cat GIF URLs into the 'images' table
+  INSERT INTO images (url) VALUES
+  ("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWhVVkX-ECkWuITbkKbOBzEayBLLXwLgqCZQ&s"),
+  ("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQH8RnFlf6AbwIUCD9p03vWkrIXpQn1Hpc8Pw&s"),
+  ("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTunuv7Ntr7YxZKE8_mZFgV2-lsVnJZ4-Cb8g&s"),
+  ("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSiElvS_DJZ5uxm9OqkhsefGEpEVi5cHoelaA&s"),
+  ("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfcjZ3c6XBJsZsAuQgogcuQAJmBvLIICxm-Q&s");

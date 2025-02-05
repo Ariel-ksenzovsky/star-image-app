@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: flask-app
 spec:
-  replicas: 2
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
       app: flask-app
@@ -14,28 +14,20 @@ spec:
     spec:
       containers:
       - name: flask-app
-        image: arielk2511/star_meme_sql_compose
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
-        - containerPort: 5000
+        - containerPort: {{ .Values.service.targetPort }}
         env:
         - name: DB_HOST
-          valueFrom:
-            configMapKeyRef:
-              name: flask-config
-              key: DB_HOST
+          value: "{{ .Values.config.DB_HOST }}"
+        - name: DB_NAME
+          value: "{{ .Values.config.DB_NAME }}"
+        - name: PORT
+          value: "{{ .Values.config.FLASK_PORT }}"
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
               name: flask-secrets
               key: DB_PASSWORD
-        - name: DB_NAME
-          valueFrom:
-            configMapKeyRef:
-              name: flask-config
-              key: DB_NAME
-        - name: PORT
-          valueFrom:
-            configMapKeyRef:
-              name: flask-config
-              key: FLASK_PORT
         command: ["/bin/sh", "-c", "sleep 10 && python app.py"]
