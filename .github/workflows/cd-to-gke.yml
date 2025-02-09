@@ -12,7 +12,7 @@ on:
     paths:
       - "charts/**"
   workflow_run:
-    workflows: ["CI Pipeline Workflow Name"]  # Replace with the name of your CI workflow
+    workflows: ["CI"]  # Replace with the name of your CI workflow
     types:
       - completed  # Trigger only when the CI pipeline is completed
 
