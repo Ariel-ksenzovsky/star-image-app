@@ -2,13 +2,20 @@ name: 'Deploy to GKE'
 
 on:
   push:
-    branches: [ "main" ]
+    branches: 
+      - "main"
     paths:
       - "charts/**"
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - "main"
     paths:
       - "charts/**"
+  workflow_run:
+    workflows: ["CI Pipeline Workflow Name"]  # Replace with the name of your CI workflow
+    types:
+      - completed  # Trigger only when the CI pipeline is completed
+
 
 
 jobs:
