@@ -1,32 +1,34 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <style type="text/css">
-      body {
-        background: black;
-        color: white;
-      }
-      div.container {
-        max-width: 500px;
-        margin: 100px auto;
-        border: 20px solid white;
-        padding: 10px;
-        text-align: center;
-      }
-      h4 {
-        text-transform: uppercase;
-      }
+        body {
+            background: black;
+            color: white;
+        }
+        div.container {
+            max-width: 500px;
+            margin: 100px auto;
+            border: 20px solid white;
+            padding: 10px;
+            text-align: center;
+        }
+        h4 {
+            text-transform: uppercase;
+        }
     </style>
-  </head>
-  <body>
+</head>
+<body>
     <div class="container">
-      <h4>The Star Image of the Day::!!!!!!!! (add metric route))</h4>
-      {% if image %}
-        <img src="{{ image }}" alt="Star Image" />
-      {% else %}
-        <p>No image found.</p>
-      {% endif %}
-    </div>
-  </body>
-</html>
+        <h4>The Star Image of the Day::!!!!!!!!</h4>
+        
+        {% if image %}
+            <img src="{{ image }}" alt="Star Image" />
+        {% else %}
+            <p>No image found.</p>
+        {% endif %}
 
+        <h4>Visitor Count: {{ visitor_count }}</h4>  <!-- Added Visitor Counter -->
+    </div>
+</body>
+</html>
