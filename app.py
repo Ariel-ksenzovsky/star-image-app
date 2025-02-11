@@ -10,7 +10,7 @@ app = Flask(__name__)
 load_dotenv()
 
 # Create a custom counter metric for visitor count
-visitor_counter = Counter('website_visitors', 'Number of visitors to the website')
+visitor_counter = Counter('website_visitors_total', 'Number of visitors to the website')
 
 @app.route('/')
 def display_images():
@@ -18,7 +18,7 @@ def display_images():
         # Increment the visitor counter (Prometheus-based counter)
         visitor_counter.inc()
 
-        # SQL query to retrieve image URLs from database (no changes here)
+        # SQL query to retrieve image URLs from the database (no changes here)
         import mysql.connector
         db_config = { 
             'host': os.getenv('DB_HOST'),
@@ -49,18 +49,17 @@ def display_images():
     except mysql.connector.Error as err:
         app.logger.error(f"Database error: {err}")
         return f"Database error: {err}", 500
-    
+
     except Exception as e:
         app.logger.error(f"Unexpected error: {e}")
         return f"Internal server error: {e}", 500
 
 @app.route('/metrics')
 def metrics():
-    # Expose metrics in Prometheus-compatible format
+    # Expose only the counter metrics in Prometheus-compatible format
     return generate_latest(visitor_counter)
 
 
 if __name__ == "__main__":
-
     # Run the Flask app on port 5000 (default)
     app.run(host="0.0.0.0", port=int(os.getenv('FLASK_PORT', 5000)))
