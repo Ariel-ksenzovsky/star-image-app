@@ -45,7 +45,7 @@ def display_images():
         image_url = images[0][0] if images else None
 
         # Display the image and visitor count
-        return render_template('index.html', image=image_url, visitor_count=visitor_counter._value.get())
+        return render_template('index.html', image=image_url, visitor_count=int(visitor_counter._value.get()))
 
     except mysql.connector.Error as err:
         app.logger.error(f"Database error: {err}")
