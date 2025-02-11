@@ -1,7 +1,7 @@
 from flask import Flask, Response, render_template
 import random
 import os
-from prometheus_client import Counter, generate_latest, start_http_server
+from prometheus_client import Counter, generate_latest, start_http_server, CONTENT_TYPE_LATEST
 from dotenv import load_dotenv
 
 app = Flask(__name__)
