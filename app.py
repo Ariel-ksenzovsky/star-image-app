@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, Response, render_template
 import random
 import os
 from prometheus_client import Counter, generate_latest, start_http_server
@@ -73,7 +73,7 @@ def metrics():
         print(f"Error fetching visitor count: {e}")  # Log error
 
     # Return all metrics in Prometheus format
-    return generate_latest(), 200, {'Content-Type': CONTENT_TYPE_LATEST}
+    return Response(generate_latest(), 200, {'Content-Type': CONTENT_TYPE_LATEST})
 
 
 if __name__ == "__main__":
