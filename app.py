@@ -1,88 +1,75 @@
-from flask import Flask, render_template, Response
+from flask import Flask, render_template
 import random
 import os
-import mysql.connector
-from prometheus_client import Counter, Gauge, generate_latest
-from flask_prometheus_metrics import register_metrics, metric_summary
+from prometheus_client import Counter, generate_latest, start_http_server
 from dotenv import load_dotenv
 
 app = Flask(__name__)
 
-# Load environment variables
+# Load environment variables from .env
 load_dotenv()
 
-# Custom Prometheus metrics
-visitor_counter = Counter("website_visitors", "Number of visitors to the website")
-visitor_gauge = Gauge("website_visitors_total", "Current number of visitors from DB")
+# Create a custom counter metric for visitor count
+visitor_counter = Counter('website_visitors', 'Number of visitors to the website')
 
-
-def get_visitor_count():
-    """Fetch visitor count from the database."""
-    try:
-        db_config = {
-            "host": os.getenv("DB_HOST"),
-            "user": os.getenv("DB_USER"),
-            "password": os.getenv("DB_PASSWORD"),
-            "database": os.getenv("DB_NAME"),
-        }
-        cnx = mysql.connector.connect(**db_config)
-        cursor = cnx.cursor()
-
-        query = "SELECT COUNT(*) FROM visitors"
-        cursor.execute(query)
-        count = cursor.fetchone()[0]
-
-        cursor.close()
-        cnx.close()
-        return count
-    except mysql.connector.Error as err:
-        app.logger.error(f"Database error: {err}")
-        return 0
-
-
-@app.route("/")
-@metric_summary("homepage_requests_by_status", "Request count by status", labels={"status": lambda r: r.status_code})
+@app.route('/')
 def display_images():
     try:
-        visitor_counter.inc()  # Increment Prometheus counter
+        # Increment the visitor counter (Prometheus-based counter)
+        visitor_counter.inc()
 
-        visitor_count = get_visitor_count()
-        visitor_gauge.set(visitor_count)  # Update Prometheus gauge
-
-        db_config = {
-            "host": os.getenv("DB_HOST"),
-            "user": os.getenv("DB_USER"),
-            "password": os.getenv("DB_PASSWORD"),
-            "database": os.getenv("DB_NAME"),
+        # SQL query to retrieve image URLs from database (no changes here)
+        import mysql.connector
+        db_config = { 
+            'host': os.getenv('DB_HOST'),
+            'user': os.getenv('DB_USER'),
+            'password': os.getenv('DB_PASSWORD'),
+            'database': os.getenv('DB_NAME')
         }
         cnx = mysql.connector.connect(**db_config)
         cursor = cnx.cursor()
 
+        # SQL query to retrieve image URLs
         query = "SELECT url FROM images"
         cursor.execute(query)
+
+        # Fetch the list of image URLs
         images = cursor.fetchall()
 
+        # Close the cursor and connection
         cursor.close()
         cnx.close()
 
+        # Shuffle images and pick one
         random.shuffle(images)
         image_url = images[0][0] if images else None
 
-        return render_template("index.html", image=image_url, visitor_count=visitor_count)
+        return render_template('index.html', image=image_url, visitor_count=visitor_counter._value.get())
 
     except mysql.connector.Error as err:
         app.logger.error(f"Database error: {err}")
         return f"Database error: {err}", 500
-
+    
     except Exception as e:
         app.logger.error(f"Unexpected error: {e}")
         return f"Internal server error: {e}", 500
 
+@app.route('/metrics')
+def metrics():
+    # Expose metrics in Prometheus-compatible format
+    return generate_latest(visitor_counter)
 
 
-# Register flask_prometheus_metrics middleware
-register_metrics(app, app_version="1.0.0", app_config="production")
+@app.route('/metrics')
+def metrics():
+    """Expose Prometheus metrics, including visitor count from the database."""
+    visitor_gauge.set(get_visitor_count())  # Update visitor count
+    return Response(generate_latest(), mimetype="text/plain")
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.getenv("FLASK_PORT", 5000)))
+    # Start Prometheus metrics server on port 8000
+    start_http_server(8000)
+
+    # Run the Flask app on port 5000 (default)
+    app.run(host="0.0.0.0", port=int(os.getenv('FLASK_PORT', 5000)))
