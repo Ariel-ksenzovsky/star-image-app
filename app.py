@@ -18,7 +18,7 @@ def display_images():
         # Increment the visitor counter (Prometheus-based counter)
         visitor_counter.inc()
 
-        # SQL query to retrieve image URLs from the database (no changes here)
+        # SQL query to retrieve image URLs from the database
         import mysql.connector
         db_config = { 
             'host': os.getenv('DB_HOST'),
@@ -44,6 +44,7 @@ def display_images():
         random.shuffle(images)
         image_url = images[0][0] if images else None
 
+        # Display the image and visitor count
         return render_template('index.html', image=image_url, visitor_count=visitor_counter._value.get())
 
     except mysql.connector.Error as err:
@@ -59,7 +60,6 @@ def metrics():
     # Expose only the counter metrics in Prometheus-compatible format
     return generate_latest(visitor_counter)
 
-
 if __name__ == "__main__":
-    # Run the Flask app on port 5000 (default)
+    # Start the Flask app on port 5000
     app.run(host="0.0.0.0", port=int(os.getenv('FLASK_PORT', 5000)))
