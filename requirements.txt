@@ -3,4 +3,3 @@ werkzeug
 mysql-connector-python
 python-dotenv
 prometheus_client
-flask_prometheus_metrics
