@@ -68,7 +68,7 @@ def metrics():
         connection.close()
 
         # Update the Prometheus gauge with the latest visitor count
-        visitor_count_gauge.set(visitor_count)
+        visitor_count_gauge.set(int(visitor_count))
     except Exception as e:
         print(f"Error fetching visitor count: {e}")  # Log error
 
