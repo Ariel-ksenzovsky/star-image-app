@@ -55,10 +55,26 @@ def display_images():
         app.logger.error(f"Unexpected error: {e}")
         return f"Internal server error: {e}", 500
 
+    # Expose only the counter metrics in Prometheus-compatible format
 @app.route('/metrics')
 def metrics():
-    # Expose only the counter metrics in Prometheus-compatible format
-    return generate_latest(visitor_counter)
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        # Fetch the latest visitor count
+        cursor.execute("SELECT count FROM visitor_counter WHERE id = 1")
+        visitor_count = cursor.fetchone()[0]
+        connection.close()
+
+        # Update the Prometheus gauge with the latest visitor count
+        visitor_count_gauge.set(visitor_count)
+    except Exception as e:
+        print(f"Error fetching visitor count: {e}")  # Log error
+
+    # Return all metrics in Prometheus format
+    return generate_latest(), 200, {'Content-Type': CONTENT_TYPE_LATEST}
+
 
 if __name__ == "__main__":
     # Start the Flask app on port 5000

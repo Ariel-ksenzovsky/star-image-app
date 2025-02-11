@@ -1076,7 +1076,7 @@ alertmanager:
 
     ## PortName to use for Alert Manager.
     ##
-    portName: "http-metrics"
+    portName: "http-web"
 
     ## ClusterAdvertiseAddress is the explicit address to advertise in cluster. Needs to be provided for non RFC1918 [1] (public) addresses. [1] RFC1918: https://tools.ietf.org/html/rfc1918
     ##
@@ -1314,7 +1314,7 @@ grafana:
   ## Passed to grafana subchart and used by servicemonitor below
   ##
   service:
-    portName: http-web
+    portName: http-alt
     ipFamilies: []
     ipFamilyPolicy: ""
 
@@ -1355,20 +1355,6 @@ grafana:
 ##
 kubernetesServiceMonitors:
   enabled: true
-
-serviceMonitors:
-  - name: flask-app-metrics
-    selector:
-      matchLabels:
-        app: flask-app
-    endpoints:
-      - port: http
-        path: /metrics
-        interval: 10s
-    namespaceSelector:
-      matchNames:
-        - default
-
 
 ## Component scraping the kube api server
 ##
@@ -3945,7 +3931,7 @@ prometheus:
     ## prometheus resource to be created with selectors based on values in the helm deployment,
     ## which will also match the servicemonitors created
     ##
-    serviceMonitorSelectorNilUsesHelmValues: true
+    serviceMonitorSelectorNilUsesHelmValues: false
 
     ## ServiceMonitors to be selected for target discovery.
     ## If {}, select all ServiceMonitors
