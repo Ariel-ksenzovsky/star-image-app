@@ -60,16 +60,7 @@ def metrics():
     return generate_latest(visitor_counter)
 
 
-@app.route('/metrics')
-def metrics():
-    """Expose Prometheus metrics, including visitor count from the database."""
-    visitor_gauge.set(get_visitor_count())  # Update visitor count
-    return Response(generate_latest(), mimetype="text/plain")
-
-
 if __name__ == "__main__":
-    # Start Prometheus metrics server on port 8000
-    start_http_server(8000)
 
     # Run the Flask app on port 5000 (default)
     app.run(host="0.0.0.0", port=int(os.getenv('FLASK_PORT', 5000)))
