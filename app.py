@@ -1,7 +1,7 @@
 from flask import Flask, Response, render_template
 import random
 import os
-from prometheus_client import Counter, generate_latest, start_http_server, CONTENT_TYPE_LATEST
+from prometheus_client import Counter, generate_latest, CONTENT_TYPE_LATEST
 from dotenv import load_dotenv
 import mysql.connector
 
@@ -78,7 +78,7 @@ def metrics():
         connection.close()
 
         # Update the Prometheus counter based on the latest database value
-        visitor_count_gauge.set(int(visitor_count))
+        visitor_counter._value.set(visitor_count)  # Set the counter to match the DB value
     except Exception as e:
         print(f"Error fetching visitor count: {e}")  # Log error
 
