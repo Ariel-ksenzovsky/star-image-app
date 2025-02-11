@@ -3,13 +3,14 @@ import random
 import os
 from prometheus_client import Counter, generate_latest, start_http_server, CONTENT_TYPE_LATEST
 from dotenv import load_dotenv
+import mysql.connector
 
 app = Flask(__name__)
 
 # Load environment variables from .env
 load_dotenv()
 
-# Create a custom counter metric for visitor count
+# Create a custom counter metric for visitor count (Prometheus-based)
 visitor_counter = Counter('website_visitors_total', 'Number of visitors to the website')
 
 @app.route('/')
@@ -19,7 +20,6 @@ def display_images():
         visitor_counter.inc()
 
         # SQL query to retrieve image URLs from the database
-        import mysql.connector
         db_config = { 
             'host': os.getenv('DB_HOST'),
             'user': os.getenv('DB_USER'),
@@ -28,6 +28,10 @@ def display_images():
         }
         cnx = mysql.connector.connect(**db_config)
         cursor = cnx.cursor()
+
+        # Update the visitor counter in the database (centralized counter storage)
+        cursor.execute("UPDATE visitor_counter SET count = count + 1 WHERE id = 1")
+        cnx.commit()
 
         # SQL query to retrieve image URLs
         query = "SELECT url FROM images"
@@ -55,26 +59,31 @@ def display_images():
         app.logger.error(f"Unexpected error: {e}")
         return f"Internal server error: {e}", 500
 
-    # Expose only the counter metrics in Prometheus-compatible format
+# Expose only the counter metrics in Prometheus-compatible format
 @app.route('/metrics')
 def metrics():
     try:
-        connection = get_db_connection()
+        db_config = { 
+            'host': os.getenv('DB_HOST'),
+            'user': os.getenv('DB_USER'),
+            'password': os.getenv('DB_PASSWORD'),
+            'database': os.getenv('DB_NAME')
+        }
+        connection = mysql.connector.connect(**db_config)
         cursor = connection.cursor()
 
-        # Fetch the latest visitor count
+        # Fetch the latest visitor count from the database
         cursor.execute("SELECT count FROM visitor_counter WHERE id = 1")
         visitor_count = cursor.fetchone()[0]
         connection.close()
 
-        # Update the Prometheus gauge with the latest visitor count
+        # Update the Prometheus counter based on the latest database value
         visitor_count_gauge.set(int(visitor_count))
     except Exception as e:
         print(f"Error fetching visitor count: {e}")  # Log error
 
     # Return all metrics in Prometheus format
     return Response(generate_latest(), 200, {'Content-Type': CONTENT_TYPE_LATEST})
-
 
 if __name__ == "__main__":
     # Start the Flask app on port 5000
