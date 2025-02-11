@@ -79,12 +79,6 @@ def display_images():
         return f"Internal server error: {e}", 500
 
 
-@app.route("/metrics")
-def metrics():
-    """Expose Prometheus metrics, including visitor count."""
-    visitor_gauge.set(get_visitor_count())
-    return Response(generate_latest(), mimetype="text/plain")
-
 
 # Register flask_prometheus_metrics middleware
 register_metrics(app, app_version="1.0.0", app_config="production")
