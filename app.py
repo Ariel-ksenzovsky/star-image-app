@@ -16,11 +16,7 @@ visitor_counter = Counter('website_visitors_total', 'Number of visitors to the w
 @app.route('/')
 def display_images():
     try:
-        # Increment the visitor counter (Prometheus-based counter)
-        visitor_counter.inc()
-
-        # SQL query to retrieve image URLs from the database
-        db_config = { 
+        db_config = {
             'host': os.getenv('DB_HOST'),
             'user': os.getenv('DB_USER'),
             'password': os.getenv('DB_PASSWORD'),
@@ -29,18 +25,25 @@ def display_images():
         cnx = mysql.connector.connect(**db_config)
         cursor = cnx.cursor()
 
-        # Update the visitor counter in the database (centralized counter storage)
+        # Increment visitor counter in the database
         cursor.execute("UPDATE visitor_counter SET count = count + 1 WHERE id = 1")
         cnx.commit()
 
-        # SQL query to retrieve image URLs
-        query = "SELECT url FROM images"
-        cursor.execute(query)
+        # Fetch the latest visitor count from the database (NOT from Prometheus)
+        cursor.execute("SELECT count FROM visitor_counter WHERE id = 1")
+        visitor_count = cursor.fetchone()[0]  # Get latest count from DB
 
-        # Fetch the list of image URLs
+        cursor.close()
+        cnx.close()
+
+        # Debug: Print visitor count to logs
+        print(f"Visitor Count (DB): {visitor_count}")
+
+        # Fetch images from DB
+        cnx = mysql.connector.connect(**db_config)
+        cursor = cnx.cursor()
+        cursor.execute("SELECT url FROM images")
         images = cursor.fetchall()
-
-        # Close the cursor and connection
         cursor.close()
         cnx.close()
 
@@ -48,8 +51,8 @@ def display_images():
         random.shuffle(images)
         image_url = images[0][0] if images else None
 
-        # Display the image and visitor count
-        return render_template('index.html', image=image_url, visitor_count=int(visitor_counter._value.get()))
+        # Send the updated visitor count to the HTML page
+        return render_template('index.html', image=image_url, visitor_count=visitor_count)
 
     except mysql.connector.Error as err:
         app.logger.error(f"Database error: {err}")
@@ -58,6 +61,7 @@ def display_images():
     except Exception as e:
         app.logger.error(f"Unexpected error: {e}")
         return f"Internal server error: {e}", 500
+
 
 # Expose only the counter metrics in Prometheus-compatible format
 @app.route('/metrics')
