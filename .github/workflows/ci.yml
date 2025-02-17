@@ -42,7 +42,18 @@ jobs:
       if: github.ref_name == 'main'
       run: |
        docker push ${{ env.IMAGE}}:latest
-       docker push ${{ env.IMAGE }}:${{ env.VERSION }}
+       docker push ${{ env.IMAGE }}:1.0.${{ env.VERSION }}
+    
+
+    - name: Run Tests
+      run: |
+        docker compose up -d  # Start containers
+        echo "Waiting for application to start..."
+        until curl --fail --max-time 120 http://localhost:5000; do
+          echo "Waiting for application to start..."
+          sleep 5
+        done
+        echo "Application started successfully!"
 
     - name: Create Pull Request (Other Branches)
       if: github.ref_name != 'main'
