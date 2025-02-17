@@ -4,6 +4,9 @@
 
 The **Star Image App** is a Flask-based web application that displays a random image from a database and tracks visitor counts. It serves Prometheus-compatible metrics and is deployed in a Kubernetes environment. The application is built and deployed using a GitHub Actions workflow, automating the CI/CD process.
 
+## Workflow Overview
+![my_project_Diagram](https://github.com/user-attachments/assets/faad518d-d50d-4b69-9647-0dbd0caee94b)
+
 ## Workflow Setup
 
 Ensure you have these credentials saved as **secrets** in your repository settings:
