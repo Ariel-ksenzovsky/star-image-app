@@ -162,7 +162,7 @@ jobs:
              echo "monitor stack is up & running, now checking logging stack.."
           else
               echo "release might be broken - reinstalling monitor stack from scratch.."
-              cd charts/monitor/
+              cd charts/flask-app/monitor/
               helm uninstall prometheus -n monitor
               helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
               helm install prometheus prometheus-community/kube-prometheus-stack \
@@ -171,7 +171,7 @@ jobs:
           fi
   
           else
-            cd charts/monitor/
+            cd charts/flask-app/monitor/
             helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
             helm install prometheus prometheus-community/kube-prometheus-stack \
               -n monitor -f prom-values.yaml
