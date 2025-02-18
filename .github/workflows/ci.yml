@@ -43,7 +43,13 @@ jobs:
       if: github.ref_name == 'main'
       run: |
        docker push ${{ env.IMAGE}}:latest
-       docker push ${{ env.IMAGE }}:${{ env.VERSION }}
+       docker push ${{ env.IMAGE }}:${{ env.VERSION }}  
+
+    - name: Update values.yaml with version
+      run: |
+         # Update the image tag in values.yaml with the dynamically generated VERSION
+         sed -i "s/tag:.*/tag: \"${{ env.VERSION }}\"/" charts/flask-app/values.yaml
+         cat charts/flask-app/values.yaml  # Print out the values.yaml for debugging
     
     - name: Set up Docker Compose environment variables
       run: |
