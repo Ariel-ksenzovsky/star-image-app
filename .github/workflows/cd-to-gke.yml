@@ -166,48 +166,48 @@ jobs:
               helm uninstall prometheus -n monitor
               helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
               helm install prometheus prometheus-community/kube-prometheus-stack \
-                -n monitor -f monitor-stack-values.yaml
-              kubectl apply -f monitor-additional-resources.yaml
+                -n monitor -f prom-values.yaml
+              kubectl apply -f visitors_dashboards.yaml
           fi
   
           else
             cd charts/monitor/
             helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
             helm install prometheus prometheus-community/kube-prometheus-stack \
-              -n monitor -f monitor-stack-values.yaml
-            kubectl apply -f monitor-additional-resources.yaml
+              -n monitor -f prom-values.yaml
+            kubectl apply -f visitors_dashboards.yaml
           fi
   
           echo "monitor stack is ok.."
   
-      - name: Verify Logging Stack Is Up & Running
-        run: |
-          set -x
+      # - name: Verify Logging Stack Is Up & Running
+      #   run: |
+      #     set -x
   
-          if helm list -n monitor | grep -iq loki; then
-             echo "loki stack release exists, checking it is up & running."
+      #     if helm list -n monitor | grep -iq loki; then
+      #        echo "loki stack release exists, checking it is up & running."
   
-          if helm status loki -n monitor | grep -iq "STATUS: deployed" && \
-             kubectl get svc -n monitor | grep -qi loki; then
-             echo "loki stack is up & running"
-          else
-              echo "release might be broken - reinstalling loki-stack from scratch.."
-              cd charts/logging/
-              helm uninstall loki -n monitor
-              helm repo add grafana https://grafana.github.io/helm-charts
-              helm install loki grafana/loki-stack \
-                --set grafana.enabled=false --set promtail.enabled=true \
-                --set loki.image.tag=2.9.3 -n monitor -f loki-values.yaml 
-            fi
+      #     if helm status loki -n monitor | grep -iq "STATUS: deployed" && \
+      #        kubectl get svc -n monitor | grep -qi loki; then
+      #        echo "loki stack is up & running"
+      #     else
+      #         echo "release might be broken - reinstalling loki-stack from scratch.."
+      #         cd charts/logging/
+      #         helm uninstall loki -n monitor
+      #         helm repo add grafana https://grafana.github.io/helm-charts
+      #         helm install loki grafana/loki-stack \
+      #           --set grafana.enabled=false --set promtail.enabled=true \
+      #           --set loki.image.tag=2.9.3 -n monitor -f loki-values.yaml 
+      #       fi
   
-          else
-            cd charts/logging/
-            helm repo add grafana https://grafana.github.io/helm-charts
-            helm install loki grafana/loki-stack \
-              --set grafana.enabled=false --set promtail.enabled=true \
-              --set loki.image.tag=2.9.3 -n monitor -f loki-values.yaml
-          fi
+      #     else
+      #       cd charts/logging/
+      #       helm repo add grafana https://grafana.github.io/helm-charts
+      #       helm install loki grafana/loki-stack \
+      #         --set grafana.enabled=false --set promtail.enabled=true \
+      #         --set loki.image.tag=2.9.3 -n monitor -f loki-values.yaml
+      #     fi
   
-            echo "loki stack is ok.."
+      #       echo "loki stack is ok.."
       
 
