@@ -1,5 +1,8 @@
 name: Destroy Infrastructure
 
+### if you want to change the cloud provider, change the cd command in the workflow (step Terraform Init, step Terraform Destroy)
+
+
 on:
   workflow_dispatch: # Manual trigger
 
