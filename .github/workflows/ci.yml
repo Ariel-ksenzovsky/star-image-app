@@ -33,7 +33,7 @@ jobs:
       id: build_docker
       run: |
         IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/star_meme_sql_compose
-        VERSION=${{ github.run_number }}
+        VERSION=1.0.${{ github.run_number }}
         docker build -t $IMAGE_NAME:latest -t $IMAGE_NAME:$VERSION .
         echo "IMAGE=$IMAGE_NAME" >> $GITHUB_ENV
         echo "VERSION=$VERSION" >> $GITHUB_ENV
@@ -42,7 +42,7 @@ jobs:
       if: github.ref_name == 'main'
       run: |
        docker push ${{ env.IMAGE}}:latest
-       docker push ${{ env.IMAGE }}:1.0.${{ env.VERSION }}
+       docker push ${{ env.IMAGE }}:${{ env.VERSION }}
     
 
     - name: Run Tests
