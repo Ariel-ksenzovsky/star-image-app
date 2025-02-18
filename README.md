@@ -13,11 +13,11 @@ Ensure you have these credentials saved as **secrets** in your repository settin
 - **AWS_ACCESS_KEY_ID**: AWS access key for authentication.
 - **AWS_SECRET_ACCESS_KEY**: AWS secret key for authentication.
 - **DB_PASSWORD**: Password for the MySQL database.
+- **MYSQL_ROOT_PASSWORD**: Root password for MySQL.
 - **DOCKER_PASSWORD**: Docker Hub password for pushing images.
 - **DOCKER_USERNAME**: Docker Hub username.
 - **GCP_PROJECT**: Google Cloud project ID.
 - **GCP_SA_KEY**: Google Cloud service account key JSON.
-- **MYSQL_ROOT_PASSWORD**: Root password for MySQL.
 
 Ensure you have these credentials saved as **variables** in your repository settings:
 - **DB_HOST**: Hostname of the MySQL database.
