@@ -20,6 +20,7 @@ on:
 
 jobs:
   setup-build-publish-deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}  # Ensure the job runs only if CI succeeds
     name: 'Setup, Build, Publish, and Deploy'
     runs-on: 'ubuntu-latest'
     environment: 'production'
@@ -145,6 +146,68 @@ jobs:
           gcloud components update
           gcloud components install gke-gcloud-auth-plugin
           helm upgrade --install ariel-flask-app flask-repo/flask-app
-
+      
+      - name: Verify Monitor Stack Is Up & Running # -q on grep is quiet mode.
+        run: |
+          set -x
+            
+          pwd
+          echo "$GITHUB_WORKSPACE"
+  
+          if helm list -n monitor | grep -qi prometheus; then
+            echo "monitor stack release exists, checking it is up & running."
+  
+          if helm status prometheus -n monitor | grep -iq "STATUS: deployed" && \
+             kubectl get pods -n monitor | grep -iq grafana; then
+             echo "monitor stack is up & running, now checking logging stack.."
+          else
+              echo "release might be broken - reinstalling monitor stack from scratch.."
+              cd charts/monitor/
+              helm uninstall prometheus -n monitor
+              helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+              helm install prometheus prometheus-community/kube-prometheus-stack \
+                -n monitor -f monitor-stack-values.yaml
+              kubectl apply -f monitor-additional-resources.yaml
+          fi
+  
+          else
+            cd charts/monitor/
+            helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+            helm install prometheus prometheus-community/kube-prometheus-stack \
+              -n monitor -f monitor-stack-values.yaml
+            kubectl apply -f monitor-additional-resources.yaml
+          fi
+  
+          echo "monitor stack is ok.."
+  
+      - name: Verify Logging Stack Is Up & Running
+        run: |
+          set -x
+  
+          if helm list -n monitor | grep -iq loki; then
+             echo "loki stack release exists, checking it is up & running."
+  
+          if helm status loki -n monitor | grep -iq "STATUS: deployed" && \
+             kubectl get svc -n monitor | grep -qi loki; then
+             echo "loki stack is up & running"
+          else
+              echo "release might be broken - reinstalling loki-stack from scratch.."
+              cd charts/logging/
+              helm uninstall loki -n monitor
+              helm repo add grafana https://grafana.github.io/helm-charts
+              helm install loki grafana/loki-stack \
+                --set grafana.enabled=false --set promtail.enabled=true \
+                --set loki.image.tag=2.9.3 -n monitor -f loki-values.yaml 
+            fi
+  
+          else
+            cd charts/logging/
+            helm repo add grafana https://grafana.github.io/helm-charts
+            helm install loki grafana/loki-stack \
+              --set grafana.enabled=false --set promtail.enabled=true \
+              --set loki.image.tag=2.9.3 -n monitor -f loki-values.yaml
+          fi
+  
+            echo "loki stack is ok.."
       
 
