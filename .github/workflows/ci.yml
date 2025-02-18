@@ -45,6 +45,14 @@ jobs:
        docker push ${{ env.IMAGE}}:latest
        docker push ${{ env.IMAGE }}:${{ env.VERSION }}
     
+    - name: Set up Docker Compose environment variables
+      run: |
+         echo "MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> $GITHUB_ENV
+         echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
+         echo "DB_HOST=${{ vars.DB_HOST }}" >> $GITHUB_ENV
+         echo "DB_NAME=${{ vars.DB_NAME }}" >> $GITHUB_ENV
+         echo "DB_USER=${{ vars.DB_USER }}" >> $GITHUB_ENV
+         echo "FLASK_PORT=${{ vars.FLASK_PORT }}" >> $GITHUB_ENV
 
     - name: Run Tests
       run: |
