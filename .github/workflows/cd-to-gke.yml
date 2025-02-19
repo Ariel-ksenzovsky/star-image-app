@@ -20,12 +20,8 @@ on:
 
 jobs:
   setup-build-publish-deploy:
-    if: |
-      github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' ||
-      (github.event_name == 'push' && 
-      !contains(github.event.head_commit.modified, 'app.py') &&
-      !contains(github.event.head_commit.modified, 'init.sql') &&
-      !contains(join(github.event.head_commit.modified, ','), 'templates/'))
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}  # Ensure the job runs only if CI succeeds
+    name: 'Setup, Build, Publish, and Deploy'
     runs-on: 'ubuntu-latest'
     environment: 'production'
 
@@ -34,6 +30,37 @@ jobs:
       id-token: 'write'
 
     steps:
+      - name: Check if app.py, templates/**, or init.sql were modified
+        id: check-modified
+        run: |
+          git fetch origin ${{ github.event.before }}
+          MODIFIED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+          echo "Modified Files: $MODIFIED_FILES"
+        
+          if echo "$MODIFIED_FILES" | grep -q -e '^app.py$' -e '^init.sql$' -e '^templates/'; then
+            echo "ci_required=true" >> $GITHUB_ENV
+          else
+            echo "ci_required=false" >> $GITHUB_ENV
+          fi
+
+      - name: Wait for CI completion if required
+        if: env.ci_required == 'true'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const response = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: "CI.yml",
+              branch: "main",
+              event: "push"
+            });
+
+            const latestRun = response.data.workflow_runs.find(run => run.status === "completed");
+            if (!latestRun || latestRun.conclusion !== "success") {
+              core.setFailed("CI has not completed successfully. Cancelling CD.");
+            }
+
       - name: Checkout repository
         uses: actions/checkout@v3
 
