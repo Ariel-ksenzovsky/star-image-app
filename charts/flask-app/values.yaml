@@ -1,6 +1,6 @@
 # values.yaml
 
-replicaCount: 1
+replicaCount: 4
 
 image:
   repository: arielk2511/star_meme_sql_compose
