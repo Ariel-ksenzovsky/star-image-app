@@ -22,8 +22,10 @@ jobs:
   setup-build-publish-deploy:
     if: |
       github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' ||
-      github.event_name != 'workflow_run'
-    name: 'Setup, Build, Publish, and Deploy'
+      (github.event_name == 'push' && 
+      !contains(github.event.head_commit.modified, 'app.py') &&
+      !contains(github.event.head_commit.modified, 'init.sql') &&
+      !contains(join(github.event.head_commit.modified, ','), 'templates/'))
     runs-on: 'ubuntu-latest'
     environment: 'production'
 
