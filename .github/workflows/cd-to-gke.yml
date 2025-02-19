@@ -12,17 +12,18 @@ on:
     paths:
       - "charts/**"
   workflow_run:
-    workflows: ["CI"]  # Triggered by successful CI completion
+    workflows: ["CI"]  # Replace with the name of your CI workflow
     types:
-      - completed
+      - completed  # Trigger only when the CI pipeline is completed
 
 concurrency:
   group: deploy-main  # Ensures only one deployment at a time
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   setup-build-publish-deploy:
-    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}  # Runs only after successful CI
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}  # Ensure the job runs only if CI succeeds
+    name: 'Setup, Build, Publish, and Deploy'
     runs-on: 'ubuntu-latest'
     environment: 'production'
 
@@ -38,8 +39,8 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.6.0
-
-      - name: Configure AWS Credentials
+      
+      - name: Configure AWS Credentials # for s3 tf remote state - accessing s3 bucket.
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -52,7 +53,7 @@ jobs:
           chmod +x kubectl
           sudo mv kubectl /usr/local/bin/
           kubectl version --client
-
+  
       - name: Install Helm
         run: |
           curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
@@ -65,6 +66,35 @@ jobs:
           project_id: ${{ secrets.GCP_PROJECT }}
           credentials: ${{ secrets.GCP_SA_KEY }}
 
+      - name: Install gke-gcloud-auth-plugin
+        run: |
+          # Install the Google Cloud SDK if it's not already installed
+          curl https://sdk.cloud.google.com | bash
+          source $HOME/google-cloud-sdk/path.bash.inc
+          # Install the plugin using the appropriate command
+          gcloud components update
+          gcloud components install gke-gcloud-auth-plugin
+
+
+      - name: Set up Google Cloud credentials for Terraform
+        run: |
+          ECHO '${{ secrets.GCP_SA_KEY }}' | base64 --decode > /tmp/key.json
+          echo "GOOGLE_CREDENTIALS=/tmp/key.json" >> $GITHUB_ENV
+
+      - name: Initialize Terraform
+        env:
+          GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          cd terraform-gcp
+          terraform init
+
+      - name: Apply Terraform
+        env:
+          GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          cd terraform-gcp
+          terraform apply -auto-approve
+
       - name: Authenticate with Google Cloud
         run: |
           echo "$GCP_SA_KEY" > ${HOME}/gcp-key.json
@@ -73,37 +103,51 @@ jobs:
         env:
           GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
           GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
-
+        
       - name: Fetch GKE Credentials
         run: |
           gcloud container clusters get-credentials ariel-flask-cluster --zone us-central1-a --project $GCP_PROJECT
         env:
           GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
-
+        
       - name: Update Helm Chart Version
         run: |
           CHART_VERSION="1.0.${{ github.run_number }}"
+          echo "Updating Chart version to $CHART_VERSION"
           sed -i "s/^version:.*/version: $CHART_VERSION/" charts/flask-app/Chart.yaml
           cat charts/flask-app/Chart.yaml  # Debugging to verify update
-
+              
       - name: Package Helm Chart
         run: |
           helm package charts/flask-app
           mv flask-app-*.tgz charts/
-
+    
       - name: Upload Helm Chart to S3
         run: |
           aws s3 cp charts/flask-app-*.tgz s3://helm-flask-star-images/charts/
-
+    
       - name: Generate and Upload index.yaml
         run: |
           helm repo index charts/ --url https://helm-flask-star-images.s3.amazonaws.com/charts 
           aws s3 cp charts/index.yaml s3://helm-flask-star-images/charts/index.yaml
 
+      - name: delete flask-app from k8s
+        run: |
+          set -ex
+          kubectl delete all --all || true
+
+      - name: Add Helm Repo
+        run: |
+          helm repo add flask-repo https://helm-flask-star-images.s3.us-east-1.amazonaws.com/charts
+          helm repo update
+
+
       - name: deploy flask-app to k8s
         run: |
+          set -ex
+          gcloud components update
+          gcloud components install gke-gcloud-auth-plugin
           helm upgrade --install ariel-flask-app flask-repo/flask-app
-
       
       - name: Verify Monitor Stack Is Up & Running # -q on grep is quiet mode.
         run: |
