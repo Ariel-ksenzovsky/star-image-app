@@ -20,7 +20,9 @@ on:
 
 jobs:
   setup-build-publish-deploy:
-    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}  # Ensure the job runs only if CI succeeds
+    if: |
+      github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' ||
+      github.event_name != 'workflow_run'
     name: 'Setup, Build, Publish, and Deploy'
     runs-on: 'ubuntu-latest'
     environment: 'production'
