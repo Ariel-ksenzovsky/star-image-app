@@ -17,6 +17,10 @@ on:
       - completed  # Trigger only when the CI pipeline is completed
 
 
+concurrency:
+  group: deploy-main  # Ensures only one deployment runs at a time
+  cancel-in-progress: false  # Do not cancel ongoing deployments
+
 
 jobs:
   setup-build-publish-deploy:
