@@ -4,9 +4,12 @@ secret.yml
 flask-app.yml
 flask-db.yml
 Jenkinsfile
-.github/
+.github/**
 .gitignore
-terraform-aws/
+terraform-aws/**
 .env
 ansible-flask-app-ec2.yml
-terraform-azure/
+terraform-azure/**
+charts/**
+terraform-gcp/**
+k8s-config/**
